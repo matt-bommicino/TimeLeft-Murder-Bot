@@ -10,4 +10,8 @@
       <ProjectReference Include="..\MurderBot.Data\MurderBot.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="WassengerClient\Models\" />
+    </ItemGroup>
+
 </Project>

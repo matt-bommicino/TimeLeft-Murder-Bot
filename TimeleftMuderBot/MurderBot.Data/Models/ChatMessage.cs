@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
-public class ChatMessage
+public class ChatMessage : IDateCreated
 {
     [Key]
     public required string Id { get; set; }

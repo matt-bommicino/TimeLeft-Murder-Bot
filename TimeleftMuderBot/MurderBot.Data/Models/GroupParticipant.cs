@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
-public class GroupParticipant
+public class GroupParticipant : IDateCreated
 {
     [Key]
     public required string GroupId { get; set; }
@@ -13,4 +14,8 @@ public class GroupParticipant
     public DateTimeOffset DateCreated { get; set; }
     
     public DateTimeOffset LastGroupMessage { get; set; }
+    
+    public Group Group { get; set; } = null!;
+    
+    public Participant Participant { get; set; } = null!;
 }

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
-public class Participant
+public class Participant : IDateCreated
 {
     [Key]
     public required string WId { get; set; }

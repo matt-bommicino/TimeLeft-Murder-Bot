@@ -13,4 +13,6 @@ public class ExemptParticipant
     public required string ParticipantId { get; set; }
     
     public string? GroupId { get; set; }
+    
+    public DateTimeOffset DateCreated { get; set; }
 }

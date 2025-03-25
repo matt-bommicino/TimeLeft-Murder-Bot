@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
 /// <summary>
 /// This represents a token a user can use to readd themselves
 /// </summary>
-public class AutoReaddToken
+public class AutoReaddToken : IDateCreated
 {
     [Key]
     public Guid TokenGuid { get; set; }

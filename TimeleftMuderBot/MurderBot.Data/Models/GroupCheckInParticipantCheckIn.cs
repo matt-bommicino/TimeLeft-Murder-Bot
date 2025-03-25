@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
@@ -12,7 +13,7 @@ public enum CheckInMethod
 }
 
 
-public class GroupCheckInParticipantCheckIn
+public class GroupCheckInParticipantCheckIn : IDateCreated, IDateModified
 {
     [Key]
     public int GroupCheckinId { get; set; }
@@ -22,7 +23,7 @@ public class GroupCheckInParticipantCheckIn
     
     public DateTimeOffset DateCreated { get; set; }
     
-    public DateTimeOffset DateUpdated { get; set; }
+    public DateTimeOffset DateModified { get; set; }
     
     public DateTimeOffset? MessageSentTime { get; set; }
     
