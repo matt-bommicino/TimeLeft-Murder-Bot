@@ -1,10 +1,28 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using MurderBot.Data.Interface;
 
 namespace MurderBot.Data.Models;
 
 public class GroupCheckIn : IDateCreated, IDateModified
 {
+    private readonly ILazyLoader _lazyLoader;
+
+    public GroupCheckIn()
+    {
+        Messages = new List<GroupCheckInMessage>();
+        ParticipantsCheckIns = new List<GroupCheckInParticipantCheckIn>();
+    }
+
+    private GroupCheckIn(ILazyLoader lazyLoader)
+    {
+        _lazyLoader = lazyLoader;
+    }
+
+    private ICollection<GroupCheckInMessage> _messages;
+    private Group _group = null!;
+    private ICollection<GroupCheckInParticipantCheckIn> _participantsCheckIns;
+
     [Key]
     public int GroupCheckinId { get; set; }
     
@@ -17,19 +35,36 @@ public class GroupCheckIn : IDateCreated, IDateModified
     
     public DateTimeOffset DateModified { get; set; }
     
+    [StringLength(30)]
     public required string GroupId { get; set; }
     
-    public string? OutgoingMessageId { get; set; }
-    
-    public DateTimeOffset? MessageSent { get; set; }
+    public DateTimeOffset? FirstMessageSent { get; set; }
     
     public DateTimeOffset? ParticipantsReadFinished { get; set; }
     
     public DateTimeOffset? ChatResponsesFinished { get; set; }
     
     public DateTimeOffset? RemovalsCompleted { get; set; }
-    
-    public Group Group { get; set; } = null!;
-    
+
+    public Group Group
+    {
+        get => _lazyLoader.Load(this, ref _group!)!;
+        set => _group = value;
+    }
+
+    public ICollection<GroupCheckInMessage> Messages
+    {
+        get => _lazyLoader.Load(this, ref _messages!)!;
+        set => _messages = value;
+    }
+
+    public ICollection<GroupCheckInParticipantCheckIn> ParticipantsCheckIns
+    {
+        get => _lazyLoader.Load(this, ref _participantsCheckIns!)!;
+        set => _participantsCheckIns = value;
+    }
+
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
     
 }

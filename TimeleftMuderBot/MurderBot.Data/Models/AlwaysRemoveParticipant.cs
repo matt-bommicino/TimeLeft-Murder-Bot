@@ -11,10 +11,15 @@ public class AlwaysRemoveParticipant : IDateCreated
     [Key]
     public int AlwaysRemoveParticipantId { get; set; }
     
+    [StringLength(30)]
     public required string ParticipantId { get; set; }
     
+    [StringLength(30)]
     public string? GroupId { get; set; }
     
     public DateTimeOffset DateCreated { get; set; }
+    
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
     
 }

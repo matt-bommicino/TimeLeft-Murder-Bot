@@ -11,7 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="WassengerClient\Models\" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
 </Project>

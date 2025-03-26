@@ -4,6 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <UserSecretsId>6ead7182-5e83-4402-a95b-4c3aefef048c</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +18,9 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.3" />
     </ItemGroup>
 
 </Project>
