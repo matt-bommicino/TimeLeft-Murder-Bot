@@ -35,10 +35,10 @@ public class GroupCheckInParticipantCheckIn : IDateCreated, IDateModified
         _lazyLoader = lazyLoader;
     }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public int GroupCheckinId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string ParticipantId { get; set; }
     
     public DateTimeOffset DateCreated { get; set; }
@@ -47,17 +47,17 @@ public class GroupCheckInParticipantCheckIn : IDateCreated, IDateModified
     
     public DateTimeOffset? MessageSentTime { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? CheckInMessageId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? RemovalMessageId { get; set; }
     
     public Guid? AutoReAddTokenId {get; set;}
     
     public DateTimeOffset? MessageReceivedTime { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? IncomingMessageId { get; set; }
     
     public DateTimeOffset? CheckInSuccess { get; set; }

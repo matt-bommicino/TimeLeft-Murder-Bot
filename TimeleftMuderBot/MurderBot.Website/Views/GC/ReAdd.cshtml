@@ -1,0 +1,102 @@
+﻿@model ReAddViewModel
+
+@{
+    ViewBag.Title = "Rejoin Group";
+    Layout = "_Layout";
+}
+
+
+@if (!string.IsNullOrWhiteSpace(Model.FatalError))
+{
+    <div class="container mt-5">
+    <!-- Title/Explanation -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-danger">@Model.FatalError</h2>
+        </div>
+    </div>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+    <!-- Title/Explanation -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-danger">You Were Removed from "@Model.GroupName" Due to Inactivity</h2>
+            <br/>
+            <p>
+                To be re-added, please read the information below:  
+            </p>
+            <p>It's important that you <strong>add the Murder Bot's phone number to your contacts before proceeding</strong>. If you don't do this, the bot will not able to re-add you to the group.</p>
+            <p>
+                This is the best way to add the contact:</p>
+                <ol>
+                    <li>Open WhatsApp</li>
+                    <li>Go to the chat with the Murder Bot where you received this link</li>
+                    <li>Click the three dots in the upper left (hamburger menu)</li>
+                    <li>Choose "add to contacts"</li>
+                    <li>Finish adding the contact</li>
+                </ol>
+            <p>If you prefer to add the contact manually. The Murder Bot's phone number is: @Model.MurderBotPhoneNumber</p>
+            </div>
+    </div>
+
+    <!-- Group and Removal Info -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Group Information</h4>
+                    <hr />
+                    <p><strong>Group Name:</strong> @Model.GroupName</p>
+                    <p><strong>Your Phone Number:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Time Removed:</strong> @Model.RemovedTime.ToString("MM/dd/yyyy h:mm tt")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agreement Form -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Please Confirm</h4>
+                    <hr />
+                    <form method="post">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <input type="hidden" asp-for="GroupName"/>
+                        <input type="hidden" asp-for="PhoneNumber"/>
+                        <input type="hidden" asp-for="RemovedTime"/>
+                        <input type="hidden" asp-for="MurderBotPhoneNumber"/>
+                        <div class="form-group form-check">
+
+                            <input type="checkbox" class="form-check-input" asp-for="IAgreeIAddedTheContact" required/>
+                            <label class="form-check-label" asp-for="IAgreeIAddedTheContact">
+                                I have added the Murder Bot to my WhatsApp Contacts. I understand this will not work otherwise.
+                            </label>
+                        </div>
+
+                        <div class="form-group form-check">
+
+                            <input type="checkbox" class="form-check-input" asp-for="IAgreeToBeActive" required/>
+                            <label class="form-check-label" asp-for="IAgreeToBeActive">
+                                I understand there is limited space and I agree to participant in this group.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3">
+                            Rejoin Group
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+

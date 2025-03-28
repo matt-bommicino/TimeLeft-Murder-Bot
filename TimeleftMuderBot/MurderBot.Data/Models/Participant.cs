@@ -6,10 +6,10 @@ namespace MurderBot.Data.Models;
 public class Participant : IDateCreated
 {
     [Key]
-    [StringLength(30)]
+    [StringLength(50)]
     public required string WId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string Phone { get; set; }
     
     public DateTimeOffset DateCreated { get; set; }

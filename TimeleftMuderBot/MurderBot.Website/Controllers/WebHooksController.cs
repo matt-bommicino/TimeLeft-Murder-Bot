@@ -55,11 +55,15 @@ namespace MurderBot.Website.Controllers
                     //wrong webhook??
                     return UnprocessableEntity();
                 }
+                var msgBody = webhook.Data?.Body;
+                if (string.IsNullOrWhiteSpace(msgBody))
+                {
+                    msgBody = "[object]";
+                }
                 
                 //check for minimum needed field
                 if (webhook.Data.From == null || webhook.Data.Id == null
-                    || webhook.Data.FromNumber == null || webhook.Data.Body == null
-                    || webhook.Data.Body.Length == 0)
+                    || webhook.Data.FromNumber == null)
                     return UnprocessableEntity();
                 
 
@@ -79,7 +83,7 @@ namespace MurderBot.Website.Controllers
                 //record the message
                 var chatMessage = new ChatMessage
                 {
-                    Body = webhook.Data.Body,
+                    Body = msgBody,
                     Id = webhook.Data.Id,
                     ChatId = webhook.Data.From,
                     WaId = webhook.Data.Id,

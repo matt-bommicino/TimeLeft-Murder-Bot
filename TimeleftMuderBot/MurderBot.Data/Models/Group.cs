@@ -25,7 +25,7 @@ public class Group : IDateCreated, IDateModified
     }
     
     [Key]
-    [StringLength(30)]
+    [StringLength(50)]
     public required string WId { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }

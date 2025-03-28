@@ -1,0 +1,28 @@
+﻿@model ReAddViewModel
+
+@{
+    ViewBag.Title = "Rejoin Confirmation";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="text-success">Congratulations!</h2>
+                    <p>You have successfully rejoined the WhatsApp group.</p>
+                    <hr />
+                    <p><strong>Group Name:</strong> @Model.GroupName</p>
+                    <p><strong>Your Phone Number:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Rejoin Time:</strong> @Model.RejoinTime.GetValueOrDefault().ToString("MM/dd/yyyy h:mm tt")</p>
+                    <hr />
+                    <p class="mt-3">
+                        <em>We look forward to your active participation!</em>
+                    </p>
+                    <a class="btn btn-primary mt-3" asp-controller="Home" asp-action="Index">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

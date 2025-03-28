@@ -69,7 +69,7 @@ public class WassengerClient
         
         var request = new HttpRequestMessage
         {
-            Method = HttpMethod.Delete,
+            Method = HttpMethod.Post,
             RequestUri = new Uri(url, UriKind.Relative),
             Content = new StringContent($"{{\n  \"participants\": [\n {{\n \"phone\": \"{phoneNumber}\",\n \"admin\": false\n }}\n ]\n}}")
             {
@@ -111,6 +111,15 @@ public class WassengerClient
         response.EnsureSuccessStatusCode();
         var jsonResult = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<SendMessageResult>(jsonResult)!;
+    }
+
+    public async Task<DeliveryInfoResult> GetDeliveryInfo(string messageId)
+    {
+        var url = $"devices/{_murderSettings.WassengerDeviceId}/messages/{messageId}/ackinfo";
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+        var jsonResult = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<DeliveryInfoResult>(jsonResult)!;
     }
     
     

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MurderBot.Data.Interface;
 using MurderBot.Data.Models;
 
@@ -71,6 +72,9 @@ public class MurderContext : DbContext
         {
             e.HasOne(i => i.Group)
                 .WithMany(i => i.GroupCheckIns).HasForeignKey(i => i.GroupId);
+
+            e.Property(i => i.ChatMessageSendStageAttempts).HasDefaultValue(0);
+            e.Property(i => i.RemovalStageAttempts).HasDefaultValue(0);
         });
 
 

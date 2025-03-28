@@ -6,11 +6,11 @@ namespace MurderBot.Data.Models;
 public class ChatMessage : IDateCreated
 {
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string Id { get; set; }
     
     [Key]
-    [StringLength(30)]
+    [StringLength(50)]
     public required string WaId { get; set; }
     
     public required string Body { get; set; }
@@ -21,10 +21,10 @@ public class ChatMessage : IDateCreated
     
     public DateTimeOffset? DeliverAt { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string ChatId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? ParticipantId { get; set; }
     
     /// <summary>

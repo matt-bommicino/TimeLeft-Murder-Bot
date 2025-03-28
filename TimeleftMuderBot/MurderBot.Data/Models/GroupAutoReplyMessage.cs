@@ -31,7 +31,7 @@ public class GroupAutoReplyMessage : IDateCreated
     
     public DateTimeOffset DateCreated { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? OutgoingMessageId { get; set; }
 
     public GroupAutoReply GroupAutoReply

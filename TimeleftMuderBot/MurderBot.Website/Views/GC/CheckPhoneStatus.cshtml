@@ -1,0 +1,83 @@
+﻿@model CheckPhoneStatusResultViewModel
+
+@{
+    ViewBag.Title = "Check Phone Status";
+    Layout = "_Layout";
+}
+
+<style>
+    .status-box {
+        padding: 1rem;
+        border-radius: 4px;
+    }
+    .status-eligible {
+        background-color: #fff3cd; /* A Bootstrap-like warning background */
+        border: 1px solid #ffeeba;
+    }
+    .status-safe {
+        background-color: #d4edda; /* A Bootstrap-like success background */
+        border: 1px solid #c3e6cb;
+    }
+    .status-notfound {
+        background-color: #f8d7da; /* A Bootstrap-like danger background */
+        border: 1px solid #f5c6cb;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1>Phone Number Status</h1>
+
+    <!-- Phone Number Display -->
+    <p>
+        You searched for phone number: <strong>@Model.PhoneNumber</strong>
+    </p>
+
+    <!-- Status Display -->
+    @{
+        string statusClass = "";
+        string statusMessage = "";
+
+        switch (@Model.Status)
+        {
+            case "EligibleForRemoval":
+                statusClass = "status-box status-eligible";
+                statusMessage = "This participant is eligible for removal.";
+                break;
+            case "WillNotBeRemoved":
+                statusClass = "status-box status-safe";
+                statusMessage = "This participant will not be removed.";
+                break;
+            case "ParticipantNotFound":
+                statusClass = "status-box status-notfound";
+                statusMessage = "This number was not found.";
+                break;
+            case "WasRemoved":
+                statusClass = "status-box status-notfound";
+                statusMessage = "This participant was removed from the group";
+                break;
+            default:
+                // Fallback in case none of the known statuses match
+                statusClass = "status-box";
+                statusMessage = "Unknown status.";
+                break;
+        }
+    }
+
+    <!-- Status Box -->
+    <div class="@statusClass mt-3">
+        <strong>@statusMessage</strong>
+    </div>
+
+
+    <p class="mt-2">
+        Group Name: @Model.GroupName
+    </p>
+    <p>
+        Additional Info: @Model.AdditionalInfo
+    </p>
+
+    
+    <div class="mt-4">
+        <a asp-action="Status" asp-controller="GC" class="btn btn-secondary" asp-route-id="@Model.Id">Return to Status Report</a>
+    </div>
+</div>

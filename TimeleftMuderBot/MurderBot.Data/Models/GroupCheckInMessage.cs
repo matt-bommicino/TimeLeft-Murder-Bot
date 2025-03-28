@@ -26,7 +26,7 @@ public class GroupCheckInMessage : IDateCreated
     
     public int GroupCheckinId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? OutgoingMessageId { get; set; }
 
     public GroupCheckIn GroupCheckIn

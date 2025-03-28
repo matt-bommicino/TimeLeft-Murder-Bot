@@ -29,7 +29,7 @@ public class GroupAutoReply : IDateCreated
     
     public DateTimeOffset DateCreated { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public string? GroupId { get; set; }
 
     public Group Group

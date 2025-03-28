@@ -23,11 +23,11 @@ public class GroupParticipant : IDateCreated
     }
     
    
-    [StringLength(30)]
+    [StringLength(50)]
     public required string GroupId { get; set; }
     
 
-    [StringLength(30)]
+    [StringLength(50)]
     public required string ParticipantId { get; set; }
     
     public DateTimeOffset DateCreated { get; set; }

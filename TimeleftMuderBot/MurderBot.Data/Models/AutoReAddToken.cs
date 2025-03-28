@@ -34,7 +34,7 @@ public class AutoReAddToken : IDateCreated
     
     public int GroupCheckinId { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string ParticipantId { get; set; }
     
     [Timestamp]

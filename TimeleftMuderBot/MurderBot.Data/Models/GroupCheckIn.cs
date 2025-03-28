@@ -35,7 +35,7 @@ public class GroupCheckIn : IDateCreated, IDateModified
     
     public DateTimeOffset DateModified { get; set; }
     
-    [StringLength(30)]
+    [StringLength(50)]
     public required string GroupId { get; set; }
     
     public DateTimeOffset? FirstMessageSent { get; set; }
@@ -45,6 +45,10 @@ public class GroupCheckIn : IDateCreated, IDateModified
     public DateTimeOffset? ChatResponsesFinished { get; set; }
     
     public DateTimeOffset? RemovalsCompleted { get; set; }
+    
+    public int ChatMessageSendStageAttempts { get; set; }
+    
+    public int RemovalStageAttempts { get; set; }
 
     public Group Group
     {

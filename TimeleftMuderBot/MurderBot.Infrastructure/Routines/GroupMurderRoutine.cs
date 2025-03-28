@@ -13,15 +13,17 @@ public class GroupMurderRoutine : IServiceRoutine
     private readonly ILogger<GroupMurderRoutine> _logger;
     private readonly MurderContext _dbContext;
     private readonly MurderUtil _murderUtil;
+    private readonly WassengerClient.WassengerClient _apiClient;
     private readonly CommonMurderSettings _murderSettings;
 
     public GroupMurderRoutine(ILogger<GroupMurderRoutine> logger,
         MurderContext dbContext, IOptions<CommonMurderSettings> murderSettings,
-        MurderUtil murderUtil)
+        MurderUtil murderUtil, WassengerClient.WassengerClient apiClient)
     {
         _logger = logger;
         _dbContext = dbContext;
         _murderUtil = murderUtil;
+        _apiClient = apiClient;
         _murderSettings = murderSettings.Value;
     }
     
@@ -121,23 +123,22 @@ public class GroupMurderRoutine : IServiceRoutine
             };
             newCheckin.ParticipantsCheckIns.Add(partCheckIn);
             
-            //the bot itself is always exempt
-            if (partCheckIn.ParticipantId == _murderSettings.BotWid)
+            var postCutoff = DateTimeOffset.Now - group.LastMessageExemptTime;
+            
+            //the bot itself is always exempt, can't remove owners
+            if (partCheckIn.ParticipantId == _murderSettings.BotWid || gp.IsOwner)
             {
                 partCheckIn.CheckInSuccess = DateTimeOffset.Now;
                 partCheckIn.CheckInMethod = CheckInMethod.Exempt;
+                
             }
-
-            if (_exemptParticipants.Any(ep => ep.ParticipantId == partCheckIn.ParticipantId
+            else if (_exemptParticipants.Any(ep => ep.ParticipantId == partCheckIn.ParticipantId
                                               && (ep.GroupId == null || ep.GroupId == group.WId)))
             {
                 partCheckIn.CheckInSuccess = DateTimeOffset.Now;
                 partCheckIn.CheckInMethod = CheckInMethod.Exempt;
             }
-
-            var postCutoff = DateTimeOffset.Now - group.LastMessageExemptTime;
-
-            if (gp.LastGroupMessage > postCutoff)
+            else if (gp.LastGroupMessage > postCutoff)
             {
                 partCheckIn.CheckInSuccess = DateTimeOffset.Now;
                 partCheckIn.CheckInMethod = CheckInMethod.RecentGroupMessage;
@@ -191,6 +192,31 @@ public class GroupMurderRoutine : IServiceRoutine
     private async Task ProcessReadingStage(GroupCheckIn groupCheckIn)
     {
         _logger.LogInformation($"Wait for read recipients for {groupCheckIn.GroupCheckinId} : {groupCheckIn.Group.Name} : {groupCheckIn.GroupId}");
+
+        var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
+            .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
+                        && c.CheckInSuccess == null).ToListAsync();
+        
+
+        foreach (var msg in groupCheckIn.Messages)
+        {
+            if (msg.OutgoingMessageId == null)
+                continue;
+
+            var deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
+
+            foreach (var rp in deliveryInfo.Read)
+            {
+                var badP = badParticipants.FirstOrDefault(p => p.ParticipantId == rp.Wid);
+                if (badP != null)
+                {
+                    badP.CheckInSuccess = DateTimeOffset.Now;
+                    badP.CheckInMethod = CheckInMethod.ReadCheckInMessage;
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+        }
+
         var checkInMessageSent = groupCheckIn.Messages
             .Where(c => c.OutgoingMessage.SendAt != null)
             .OrderBy(c => c.OutgoingMessage.SendAt)
@@ -214,7 +240,7 @@ public class GroupMurderRoutine : IServiceRoutine
         
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
-                        && c.CheckInSuccess == null).ToListAsync();
+                        && c.CheckInSuccess == null && c.MessageSentTime == null).ToListAsync();
         
         var messageTemplate = await _dbContext.MessageTemplate
             .OrderByDescending(t => t.DateCreated)
@@ -235,26 +261,35 @@ public class GroupMurderRoutine : IServiceRoutine
             throw new Exception("Unable to find participant check in message template");
         }
 
-        var messageSent = false;
+        var failures = 0;
         foreach (var bp in badParticipants)
         {
             try
             {
-                messageSent = messageSent || await DoParticipantSendMessage(groupCheckIn, bp);
+                await DoParticipantSendMessage(groupCheckIn, bp);
             }
             catch (Exception e)
             {
+                failures++;
                 _logger.LogError(e, $"Unable to send check in message for {bp.GroupCheckinId} : {bp.ParticipantId}");
             }
 
 
         }
 
-        if (messageSent)
+        //try again later maybe
+        if (failures > 0 && groupCheckIn.ChatMessageSendStageAttempts < 5)
+        {
+            _logger.LogWarning($"{failures} message failures, trying again later");
+            groupCheckIn.ChatMessageSendStageAttempts++;
+        }
+        else
         {
             groupCheckIn.FirstMessageSent = DateTimeOffset.Now;
-            await _dbContext.SaveChangesAsync();
+            
         }
+        
+        await _dbContext.SaveChangesAsync();
         
     }
     
@@ -297,9 +332,9 @@ public class GroupMurderRoutine : IServiceRoutine
 
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
-                        && c.CheckInSuccess == null).ToListAsync();
+                        && c.CheckInSuccess == null && c.RemovalTime == null).ToListAsync();
 
-
+        var failures = 0;
         foreach (var bp in badParticipants)
         {
             try
@@ -308,11 +343,25 @@ public class GroupMurderRoutine : IServiceRoutine
             }
             catch (Exception e)
             {
+                failures++;
                 _logger.LogError(e, $"Unable to do participant removal for {bp.GroupCheckinId} : {bp.ParticipantId}");
             }
 
 
         }
+
+        // maybe try the failures again later
+        if (failures > 0 && groupCheckIn.RemovalStageAttempts < 5)
+        {
+            _logger.LogWarning($"{failures} removal failures, trying again later");
+            groupCheckIn.RemovalStageAttempts++;
+        }
+        else
+        {
+            groupCheckIn.RemovalsCompleted = DateTimeOffset.Now;
+        }
+        
+        await _dbContext.SaveChangesAsync();
         
 
     }
@@ -321,7 +370,7 @@ public class GroupMurderRoutine : IServiceRoutine
     {
         if (bp.CheckInMessage?.SendAt != null)
         {
-            _logger.LogWarning($"Message already sent for group check in {groupCheckIn.GroupId} : {bp.ParticipantId}");
+            _logger.LogInformation($"Message already sent for group check in {groupCheckIn.GroupId} : {bp.ParticipantId}");
             return false;
         }
 
@@ -329,6 +378,7 @@ public class GroupMurderRoutine : IServiceRoutine
         var cm = await _murderUtil.SendParticipantMessage(bp.ParticipantId, _participantCheckInMessageText);
         
         bp.CheckInMessageId = cm.WaId;
+        bp.MessageSentTime = DateTimeOffset.Now;
         await _dbContext.SaveChangesAsync();
 
         return true;
@@ -383,6 +433,7 @@ public class GroupMurderRoutine : IServiceRoutine
         _dbContext.AutoReAddToken.Add(readdToken);
         
         bp.RemovalTime = DateTimeOffset.Now;
+        bp.CheckInMethod = CheckInMethod.ParticipantRemoved;
         bp.AutoReAddTokenId = tokenGuid;
         await _dbContext.SaveChangesAsync();
         
