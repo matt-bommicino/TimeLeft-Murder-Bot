@@ -343,6 +343,8 @@ public class GroupMurderRoutine : IServiceRoutine
             try
             {
                 await DoParticipantRemoval(groupCheckIn, bp);
+                //wait 1 second between removals
+                await Task.Delay(1000);
             }
             catch (Exception e)
             {
