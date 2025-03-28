@@ -196,8 +196,9 @@ public class GroupMurderRoutine : IServiceRoutine
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
                         && c.CheckInSuccess == null).ToListAsync();
-        
 
+
+        var newRead = 0;
         foreach (var msg in groupCheckIn.Messages)
         {
             if (msg.OutgoingMessageId == null)
@@ -213,9 +214,11 @@ public class GroupMurderRoutine : IServiceRoutine
                     badP.CheckInSuccess = DateTimeOffset.Now;
                     badP.CheckInMethod = CheckInMethod.ReadCheckInMessage;
                     await _dbContext.SaveChangesAsync();
+                    newRead++;
                 }
             }
         }
+        _logger.LogInformation($"Marked {newRead} participants as read");
 
         var checkInMessageSent = groupCheckIn.Messages
             .Where(c => c.OutgoingMessage.SendAt != null)

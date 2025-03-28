@@ -115,7 +115,7 @@ public class WassengerClient
 
     public async Task<DeliveryInfoResult> GetDeliveryInfo(string messageId)
     {
-        var url = $"devices/{_murderSettings.WassengerDeviceId}/messages/{messageId}/ackinfo";
+        var url = $"chat/{_murderSettings.WassengerDeviceId}/messages/{messageId}/ackinfo";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var jsonResult = await response.Content.ReadAsStringAsync();
