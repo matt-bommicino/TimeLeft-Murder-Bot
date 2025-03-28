@@ -21,8 +21,8 @@ namespace MurderBot.Data.Migrations
                 {
                     AlwaysRemoveParticipantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    GroupId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    GroupId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
@@ -36,14 +36,14 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    WaId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Id = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    WaId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     SendAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DeliverAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    ChatId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    ChatId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     OutgoingMessage = table.Column<bool>(type: "bit", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
@@ -59,8 +59,8 @@ namespace MurderBot.Data.Migrations
                 {
                     ExemptParticipantId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    GroupId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    GroupId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
@@ -74,7 +74,7 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    WId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    WId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     DateModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
@@ -118,8 +118,8 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    WId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    WId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     FriendlyName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
@@ -139,7 +139,7 @@ namespace MurderBot.Data.Migrations
                     TriggerRegEx = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ReplyMessage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
-                    GroupId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    GroupId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -163,11 +163,13 @@ namespace MurderBot.Data.Migrations
                     UrlGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     DateModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
-                    GroupId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    GroupId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     FirstMessageSent = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ParticipantsReadFinished = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ChatResponsesFinished = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     RemovalsCompleted = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    ChatMessageSendStageAttempts = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    RemovalStageAttempts = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -186,8 +188,8 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    GroupId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    GroupId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     LastGroupMessage = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false),
@@ -220,7 +222,7 @@ namespace MurderBot.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     GroupAutoReplyId = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
-                    OutgoingMessageId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    OutgoingMessageId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -250,7 +252,7 @@ namespace MurderBot.Data.Migrations
                     ExpirationDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DateClaimed = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     GroupCheckinId = table.Column<int>(type: "int", nullable: false),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
@@ -272,7 +274,7 @@ namespace MurderBot.Data.Migrations
                     GroupCheckinMessageId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     GroupCheckinId = table.Column<int>(type: "int", nullable: false),
-                    OutgoingMessageId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    OutgoingMessageId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
@@ -298,16 +300,16 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    GroupCheckinId = table.Column<int>(type: "int", maxLength: 30, nullable: false),
-                    ParticipantId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    GroupCheckinId = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    ParticipantId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     DateModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     MessageSentTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    CheckInMessageId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    RemovalMessageId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    CheckInMessageId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    RemovalMessageId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     AutoReAddTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MessageReceivedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    IncomingMessageId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    IncomingMessageId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     CheckInSuccess = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     CheckInMethod = table.Column<int>(type: "int", nullable: false),
                     RemovalTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),

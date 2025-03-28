@@ -12,7 +12,7 @@ using MurderBot.Data.Context;
 namespace MurderBot.Data.Migrations
 {
     [DbContext(typeof(MurderContext))]
-    [Migration("20250327170858_InitialDatabase")]
+    [Migration("20250328224527_InitialDatabase")]
     partial class InitialDatabase
     {
         /// <inheritdoc />
@@ -40,13 +40,13 @@ namespace MurderBot.Data.Migrations
                         .HasDefaultValueSql("sysdatetimeoffset()");
 
                     b.Property<string>("GroupId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ParticipantId")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -81,8 +81,8 @@ namespace MurderBot.Data.Migrations
 
                     b.Property<string>("ParticipantId")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -100,8 +100,8 @@ namespace MurderBot.Data.Migrations
             modelBuilder.Entity("MurderBot.Data.Models.ChatMessage", b =>
                 {
                     b.Property<string>("WaId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -109,8 +109,8 @@ namespace MurderBot.Data.Migrations
 
                     b.Property<string>("ChatId")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset>("DateCreated")
                         .ValueGeneratedOnAdd()
@@ -121,15 +121,15 @@ namespace MurderBot.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Id")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("OutgoingMessage")
                         .HasColumnType("bit");
 
                     b.Property<string>("ParticipantId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -157,13 +157,13 @@ namespace MurderBot.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("GroupId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ParticipantId")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -179,8 +179,8 @@ namespace MurderBot.Data.Migrations
             modelBuilder.Entity("MurderBot.Data.Models.Group", b =>
                 {
                     b.Property<string>("WId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CheckInMessageResponseTimeout")
                         .IsRequired()
@@ -256,8 +256,8 @@ namespace MurderBot.Data.Migrations
                         .HasDefaultValueSql("sysdatetimeoffset()");
 
                     b.Property<string>("GroupId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ReplyMessage")
                         .IsRequired()
@@ -297,8 +297,8 @@ namespace MurderBot.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("OutgoingMessageId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -323,6 +323,11 @@ namespace MurderBot.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupCheckinId"));
 
+                    b.Property<int>("ChatMessageSendStageAttempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTimeOffset?>("ChatResponsesFinished")
                         .HasColumnType("datetimeoffset");
 
@@ -341,11 +346,16 @@ namespace MurderBot.Data.Migrations
 
                     b.Property<string>("GroupId")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset?>("ParticipantsReadFinished")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("RemovalStageAttempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTimeOffset?>("RemovalsCompleted")
                         .HasColumnType("datetimeoffset");
@@ -383,8 +393,8 @@ namespace MurderBot.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("OutgoingMessageId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -404,19 +414,19 @@ namespace MurderBot.Data.Migrations
             modelBuilder.Entity("MurderBot.Data.Models.GroupCheckInParticipantCheckIn", b =>
                 {
                     b.Property<int>("GroupCheckinId")
-                        .HasMaxLength(30)
+                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.Property<string>("ParticipantId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid?>("AutoReAddTokenId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CheckInMessageId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("CheckInMethod")
                         .HasColumnType("int");
@@ -435,8 +445,8 @@ namespace MurderBot.Data.Migrations
                         .HasDefaultValueSql("sysdatetimeoffset()");
 
                     b.Property<string>("IncomingMessageId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset?>("MessageReceivedTime")
                         .HasColumnType("datetimeoffset");
@@ -445,8 +455,8 @@ namespace MurderBot.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RemovalMessageId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset?>("RemovalTime")
                         .HasColumnType("datetimeoffset");
@@ -471,12 +481,12 @@ namespace MurderBot.Data.Migrations
             modelBuilder.Entity("MurderBot.Data.Models.GroupParticipant", b =>
                 {
                     b.Property<string>("GroupId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ParticipantId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset>("DateCreated")
                         .ValueGeneratedOnAdd()
@@ -541,8 +551,8 @@ namespace MurderBot.Data.Migrations
             modelBuilder.Entity("MurderBot.Data.Models.Participant", b =>
                 {
                     b.Property<string>("WId")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset>("DateCreated")
                         .ValueGeneratedOnAdd()
@@ -555,8 +565,8 @@ namespace MurderBot.Data.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
