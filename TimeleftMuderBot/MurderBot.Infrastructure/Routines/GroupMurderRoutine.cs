@@ -270,10 +270,28 @@ public class GroupMurderRoutine : IServiceRoutine
         }
         
     }
-    
+
+    private string _removalMessageTemplate;
     private async Task ProcessRemovalsStage(GroupCheckIn groupCheckIn)
     {
         _logger.LogInformation($"Proccessing removals for check in {groupCheckIn.GroupCheckinId} : {groupCheckIn.Group.Name} : {groupCheckIn.GroupId}");
+        
+        var messageTemplate = await _dbContext.MessageTemplate
+            .OrderByDescending(t => t.DateCreated)
+            .FirstOrDefaultAsync(t =>
+                t.IsActive && t.MessageTemplateType == MessageTemplateType.ParticipantRemovedMessage);
+
+        if (messageTemplate != null)
+        {
+            _removalMessageTemplate = messageTemplate.MessageBody;
+        }
+        else
+        {
+                throw new Exception("Unable to find removal message template");
+        }
+        
+        
+        
         
         //get all the candidates for removal
 
@@ -372,23 +390,13 @@ public class GroupMurderRoutine : IServiceRoutine
         var readdUrl = $"{_murderSettings.WebsiteBaseUrl}/GC/ReAdd/{readdToken.TokenGuid}";
         var groupName = groupCheckIn.Group.Name;
         
-        var messageTemplate = await _dbContext.MessageTemplate
-            .OrderByDescending(t => t.DateCreated)
-            .FirstOrDefaultAsync(t =>
-                t.IsActive && t.MessageTemplateType == MessageTemplateType.ParticipantRemovedMessage);
-
-        if (messageTemplate != null)
-        {
-            var messageText = messageTemplate.MessageBody.Replace("%groupname%", groupName)
-                .Replace("%rejoinlink%",readdUrl);
-            var cm = await _murderUtil.SendParticipantMessage(bp.ParticipantId, messageText);
-            bp.RemovalMessageId = cm.WaId;
-            await _dbContext.SaveChangesAsync();
-        }
-        else
-        {
-            throw new Exception("Unable to find removal message template");
-        }
+        
+        var messageText = _removalMessageTemplate.Replace("%groupname%", groupName)
+            .Replace("%rejoinlink%",readdUrl);
+        var cm = await _murderUtil.SendParticipantMessage(bp.ParticipantId, messageText);
+        bp.RemovalMessageId = cm.WaId;
+        await _dbContext.SaveChangesAsync();
+       
 
 
     }
