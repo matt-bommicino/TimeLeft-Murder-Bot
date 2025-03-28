@@ -7,11 +7,13 @@
     <UserSecretsId>6ead7182-5e83-4402-a95b-4c3aefef048c</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MuderBot.Infrastructure\MuderBot.Infrastructure.csproj" />
+    <ProjectReference Include="..\MurderBot.Infrastructure\MurderBot.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
   </ItemGroup>
   <ItemGroup>

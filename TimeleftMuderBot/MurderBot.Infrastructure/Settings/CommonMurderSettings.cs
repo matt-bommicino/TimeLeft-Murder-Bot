@@ -1,10 +1,12 @@
-﻿namespace MuderBot.Infrastructure.Settings;
+﻿namespace MurderBot.Infrastructure.Settings;
 
 public class CommonMurderSettings
 {
     public string? WassengerApiToken { get; set; }
     
     public string? WassengerDeviceId { get; set; }
+    
+    public string? WassengerWebhookSecret { get; set; }
     
     public string? WebsiteBaseUrl { get; set; }
     
@@ -40,6 +42,12 @@ public class CommonMurderSettings
     /// over again since the last time it started
     /// </summary>
     public TimeSpan DefaultMinimumTimeBetweenRuns { get; set; } = TimeSpan.FromDays(30);
+    
+    /// <summary>
+    /// The amount of time before the bot will send the same auto-reply again
+    /// </summary>
+    public TimeSpan AutoReplyTimeout { get; set; } = TimeSpan.FromMinutes(30);
+    
     
     
     

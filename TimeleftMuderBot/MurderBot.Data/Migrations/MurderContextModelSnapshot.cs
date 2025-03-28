@@ -96,7 +96,7 @@ namespace MurderBot.Data.Migrations
 
             modelBuilder.Entity("MurderBot.Data.Models.ChatMessage", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("WaId")
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
@@ -117,6 +117,10 @@ namespace MurderBot.Data.Migrations
                     b.Property<DateTimeOffset?>("DeliverAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Id")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
                     b.Property<bool>("OutgoingMessage")
                         .HasColumnType("bit");
 
@@ -133,12 +137,7 @@ namespace MurderBot.Data.Migrations
                     b.Property<DateTimeOffset?>("SendAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("WaId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
+                    b.HasKey("WaId");
 
                     b.ToTable("ChatMessage", "Murder");
                 });

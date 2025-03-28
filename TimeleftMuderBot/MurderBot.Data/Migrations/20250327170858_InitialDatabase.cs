@@ -36,8 +36,8 @@ namespace MurderBot.Data.Migrations
                 schema: "Murder",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     WaId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "sysdatetimeoffset()"),
                     SendAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -49,7 +49,7 @@ namespace MurderBot.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatMessage", x => x.Id);
+                    table.PrimaryKey("PK_ChatMessage", x => x.WaId);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,7 +231,7 @@ namespace MurderBot.Data.Migrations
                         column: x => x.OutgoingMessageId,
                         principalSchema: "Murder",
                         principalTable: "ChatMessage",
-                        principalColumn: "Id");
+                        principalColumn: "WaId");
                     table.ForeignKey(
                         name: "FK_GroupAutoReplyMessage_GroupAutoReply_GroupAutoReplyId",
                         column: x => x.GroupAutoReplyId,
@@ -284,7 +284,7 @@ namespace MurderBot.Data.Migrations
                         column: x => x.OutgoingMessageId,
                         principalSchema: "Murder",
                         principalTable: "ChatMessage",
-                        principalColumn: "Id");
+                        principalColumn: "WaId");
                     table.ForeignKey(
                         name: "FK_GroupCheckInMessage_GroupCheckIn_GroupCheckinId",
                         column: x => x.GroupCheckinId,
@@ -321,19 +321,19 @@ namespace MurderBot.Data.Migrations
                         column: x => x.CheckInMessageId,
                         principalSchema: "Murder",
                         principalTable: "ChatMessage",
-                        principalColumn: "Id");
+                        principalColumn: "WaId");
                     table.ForeignKey(
                         name: "FK_GroupCheckInParticipantCheckIn_ChatMessage_IncomingMessageId",
                         column: x => x.IncomingMessageId,
                         principalSchema: "Murder",
                         principalTable: "ChatMessage",
-                        principalColumn: "Id");
+                        principalColumn: "WaId");
                     table.ForeignKey(
                         name: "FK_GroupCheckInParticipantCheckIn_ChatMessage_RemovalMessageId",
                         column: x => x.RemovalMessageId,
                         principalSchema: "Murder",
                         principalTable: "ChatMessage",
-                        principalColumn: "Id");
+                        principalColumn: "WaId");
                     table.ForeignKey(
                         name: "FK_GroupCheckInParticipantCheckIn_GroupCheckIn_GroupCheckinId",
                         column: x => x.GroupCheckinId,

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace MuderBot.Infrastructure.WassengerClient.Models;
+namespace MurderBot.Infrastructure.WassengerClient.Models;
 
 public class GroupParticipantResult
 {

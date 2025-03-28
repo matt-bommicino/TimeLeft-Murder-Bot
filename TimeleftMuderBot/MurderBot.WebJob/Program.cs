@@ -5,10 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MuderBot.Infrastructure.Routines;
-using MuderBot.Infrastructure.Settings;
-using MuderBot.Infrastructure.WassengerClient;
+using MurderBot.Infrastructure.Routines;
+using MurderBot.Infrastructure.Settings;
+using MurderBot.Infrastructure.WassengerClient;
 using MurderBot.Data.Context;
+using MurderBot.Infrastructure.Utility;
 using MurderBot.WebJob;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -26,8 +27,12 @@ var host = Host.CreateDefaultBuilder(args)
             .Bind(context.Configuration.GetSection("CommonMurderSettings"));
         services.AddHttpClient();
         services.AddTransient<WassengerClient>();
-        services.AddTransient<UpdateGroupsRoutine>();
+        services.AddScoped<MurderUtil>();
+        services.AddScoped<UpdateGroupsRoutine>();
+        services.AddScoped<AlwaysBanRoutine>();
+        services.AddScoped<GroupMurderRoutine>();
         services.AddTransient<MurderBotService>();
+        
         
         var connectionString = context.Configuration.GetSection("CommonMurderSettings")["MurderContextConnectionString"];
         
@@ -42,6 +47,10 @@ var host = Host.CreateDefaultBuilder(args)
     {
         logging.ClearProviders();
         logging.AddConsole();
+        
+        logging.AddAzureWebAppDiagnostics();
+        
+        logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
     })
     .Build();
     

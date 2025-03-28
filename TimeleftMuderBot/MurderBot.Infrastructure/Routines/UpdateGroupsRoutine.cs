@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MuderBot.Infrastructure.Settings;
-using MuderBot.Infrastructure.WassengerClient.Models;
 using MurderBot.Data.Context;
 using MurderBot.Data.Models;
+using MurderBot.Infrastructure.Settings;
+using MurderBot.Infrastructure.WassengerClient.Models;
 
-namespace MuderBot.Infrastructure.Routines;
+namespace MurderBot.Infrastructure.Routines;
 
-public class UpdateGroupsRoutine
+public class UpdateGroupsRoutine : IServiceRoutine
 {
     private readonly CommonMurderSettings _murderOptions;
     private readonly WassengerClient.WassengerClient _apiClient;
@@ -30,7 +30,7 @@ public class UpdateGroupsRoutine
         var allGroups = await _apiClient.GetGroups();
 
         //If the murder bot has been removed from the group mark it as ignore
-        var existingGroups = _dbContext.Group.Where(i => i.Ignore).ToList();
+        var existingGroups = _dbContext.Group.Where(i => i.Ignore == false).ToList();
 
         foreach (var eDbGroup in existingGroups)
         {
@@ -43,20 +43,27 @@ public class UpdateGroupsRoutine
         }
         
 
-        foreach (var groupListResult in allGroups)         
+        foreach (var groupListResult in allGroups)
         {
+            
+            
             try
             {
                 if (groupListResult.IsCommunityAnnounce)
                     continue;
+                
+                _logger.LogInformation($"Starting group {groupListResult.Name} : {groupListResult.Wid}");
                 
                 var id = groupListResult.Wid;
                 var existingGroup = _dbContext.Group.FirstOrDefault(g => g.WId == id);
                 if (existingGroup != null)
                 {
                     if (existingGroup.Ignore)
+                    {
+                        _logger.LogInformation("Group set to ignore");
                         continue;
-                    
+                    }
+
                     var update = false;
 
                     if (existingGroup.Name != groupListResult.Name)
@@ -77,13 +84,14 @@ public class UpdateGroupsRoutine
                 }
                 else
                 {
+                    _logger.LogInformation($"Group {groupListResult.Name} is a new group, adding to DB");
                     var newGroup = new Group
                     {
                         Name = groupListResult.Name,
                         Description = groupListResult.Description,
                         WId = groupListResult.Wid,
                         CreatedAt = groupListResult.CreatedAt ?? DateTimeOffset.Now,
-                        Ignore = true,
+                        Ignore = false,
                         DoMurders = false,
                         IsBotAdmin = false,
                         LastMessageExemptTime = _murderOptions.DefaultLastMessageExemptTime,
@@ -109,6 +117,8 @@ public class UpdateGroupsRoutine
         }
     }
 
+    public bool CascadeFailure => false;
+
 
     /// <summary>
     /// </summary>
@@ -116,6 +126,9 @@ public class UpdateGroupsRoutine
     /// <returns>Returns true if the bot is an admin of the group</returns>
     private async Task<bool> SyncParticipants(string groupId)
     {
+        var newCount = 0;
+        var removeCount = 0;
+        
         var result = false;
         var groupResult = await _apiClient.GetGroupById(groupId);
         
@@ -145,6 +158,7 @@ public class UpdateGroupsRoutine
                 };
                 dbGroup.GroupParticipants.Add(dbGroupParticipant);
                 await  _dbContext.SaveChangesAsync();
+                newCount++;
             }
             else
             {
@@ -171,6 +185,7 @@ public class UpdateGroupsRoutine
                 {
                     _dbContext.GroupParticipant.Remove(dbGp);
                     doUpdate = true;
+                    removeCount++;
                 }
 
             }
@@ -178,6 +193,7 @@ public class UpdateGroupsRoutine
             if (doUpdate)
                 await _dbContext.SaveChangesAsync();
         }
+        _logger.LogInformation($"Found {newCount} new participants. Removed {removeCount} participants");
 
         return result;
 

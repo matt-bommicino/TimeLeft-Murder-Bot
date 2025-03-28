@@ -5,10 +5,11 @@ namespace MurderBot.Data.Models;
 
 public class ChatMessage : IDateCreated
 {
-    [Key]
+    
     [StringLength(30)]
     public required string Id { get; set; }
     
+    [Key]
     [StringLength(30)]
     public required string WaId { get; set; }
     

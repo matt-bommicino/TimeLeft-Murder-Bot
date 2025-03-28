@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MurderBot.WebJob", "MurderB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MurderBot.Data", "MurderBot.Data\MurderBot.Data.csproj", "{C7EDD4DD-1561-4C08-9867-156E4B24CA84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuderBot.Infrastructure", "MuderBot.Infrastructure\MuderBot.Infrastructure.csproj", "{3136EA93-B93A-4A81-A597-0932EFB269FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MurderBot.Infrastructure", "MurderBot.Infrastructure\MurderBot.Infrastructure.csproj", "{3136EA93-B93A-4A81-A597-0932EFB269FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MurderBot.Website", "MurderBot.Website\MurderBot.Website.csproj", "{9D50448D-5F7D-463C-BF3A-4C70761AC1FC}"
 EndProject
