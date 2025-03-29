@@ -77,9 +77,8 @@ public class Group : IDateCreated, IDateModified
     public int RemovalStageMaxRetries { get; set; }
     
     /// <summary>
-    /// Total number of messages to send to the group to be read
-    /// by participants. This includes the initial checkin message.
-    /// If this is zero or one, it will send one message
+    /// Total number of reminder messages to send to the group to be read
+    /// by participants. This does not include the initial checkin message.
     /// </summary>
     public int ReminderCheckinMessages { get; set; }
     

@@ -295,7 +295,8 @@ public class GroupMurderRoutine : IServiceRoutine
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
                         && c.CheckInSuccess == null).ToListAsync();
 
-        var totalMessagesToSend = groupCheckIn.Group.ReminderCheckinMessages;
+        //+1 for the initial check in message
+        var totalMessagesToSend = groupCheckIn.Group.ReminderCheckinMessages + 1;
         
         var totalMessagesSent = await _dbContext.GroupCheckInMessage
             .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
