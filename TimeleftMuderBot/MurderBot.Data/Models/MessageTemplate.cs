@@ -10,6 +10,7 @@ public enum MessageTemplateType
     ParticipantCheckInMessage = 2,
     ParticipantReplyMessage = 3,
     ParticipantRemovedMessage = 4,
+    GroupCheckInReminderMessage = 5,
 }
 
 public class MessageTemplate: IDateCreated, IDateModified

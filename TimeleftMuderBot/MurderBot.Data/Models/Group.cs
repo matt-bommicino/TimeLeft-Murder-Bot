@@ -71,6 +71,18 @@ public class Group : IDateCreated, IDateModified
     /// over again since the last time it started
     /// </summary>
     public TimeSpan MinimumTimeBetweenRuns { get; set; }
+    
+    public int MessageSendStageMaxRetries { get; set; }
+    
+    public int RemovalStageMaxRetries { get; set; }
+    
+    /// <summary>
+    /// Total number of messages to send to the group to be read
+    /// by participants. This includes the initial checkin message.
+    /// If this is zero or one, it will send one message
+    /// </summary>
+    public int ReminderCheckinMessages { get; set; }
+    
 
     public ICollection<GroupParticipant> GroupParticipants
     {

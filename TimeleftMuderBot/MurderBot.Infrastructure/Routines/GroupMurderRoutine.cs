@@ -148,12 +148,12 @@ public class GroupMurderRoutine : IServiceRoutine
 
         await _dbContext.SaveChangesAsync();
 
-        await SendAndRecordGroupCheckInMessage(newCheckin);
+        await SendAndRecordGroupCheckInInitialMessage(newCheckin);
 
 
     }
 
-    private async Task SendAndRecordGroupCheckInMessage(GroupCheckIn groupCheckIn)
+    private async Task SendAndRecordGroupCheckInInitialMessage(GroupCheckIn groupCheckIn)
     {
         var checkinUrl = $"{_murderSettings.WebsiteBaseUrl}/GC/Status/{groupCheckIn.UrlGuid}";
         
@@ -182,12 +182,110 @@ public class GroupMurderRoutine : IServiceRoutine
         
     }
 
+    private async Task<string> GetNewRobotMurderJoke()
+    {
+        //get which Joke is least told
+        var leastTold = await _dbContext.MurderJoke.MinAsync(j => j.TimesTold);
+        
+        //get a random joke that has been told the least number of times
+        var joke = await _dbContext.MurderJoke
+            .Where(j => j.TimesTold >= leastTold)
+            .OrderBy(j => EF.Functions.Random())
+            .FirstOrDefaultAsync();
+        
+        if (joke == null)
+        {
+            throw new Exception("No murder jokes found in the database");
+        }
+        joke.TimesTold++;
+        
+        //the times told count will be saved when the message is sent
+
+        return joke.JokeText;
+    }
+    
+    
+    private async Task SendAndRecordGroupCheckInReminderMessage(GroupCheckIn groupCheckIn)
+    {
+        var checkinUrl = $"{_murderSettings.WebsiteBaseUrl}/GC/Status/{groupCheckIn.UrlGuid}";
+        
+        var messageTemplate = await _dbContext.MessageTemplate
+            .OrderByDescending(t => t.DateCreated)
+            .FirstOrDefaultAsync(t =>
+                t.IsActive && t.MessageTemplateType == MessageTemplateType.GroupCheckInReminderMessage);
+
+        if (messageTemplate != null)
+        {
+            var readCount = await _dbContext.GroupCheckInParticipantCheckIn
+                .CountAsync(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId &&
+                                 c.CheckInMethod == CheckInMethod.ReadCheckInMessage);
+            
+            //get check in message ID to quote
+            var checkinMessageID = await _dbContext.GroupCheckInMessage
+                .Where(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
+                            && m.OutgoingMessage.SendAt != null)
+                .OrderBy(m => m.DateCreated)
+                .Select(m => m.OutgoingMessageId)
+                .FirstOrDefaultAsync();
+
+            var murderJoke = string.Empty;
+            if (messageTemplate.MessageBody.Contains("%murderjoke%"))
+            {
+                murderJoke = await GetNewRobotMurderJoke();
+            }
+            
+            var messageText = messageTemplate.MessageBody.Replace("%groupname%", groupCheckIn.Group.Name)
+                .Replace("%progresslink%",checkinUrl)
+                .Replace("%readcount%", readCount.ToString())
+                .Replace("%murderjoke%", murderJoke);
+            
+            var cm = await _murderUtil.SendGroupMessage(groupCheckIn.GroupId, messageText, checkinMessageID);
+            groupCheckIn.Messages.Add(
+                new GroupCheckInMessage
+                {
+                    OutgoingMessageId = cm.WaId
+                });
+            
+            await _dbContext.SaveChangesAsync();
+        }
+        else
+        {
+            throw new Exception("Unable to find group check in message template");
+        }
+        
+    }
+
+    /// <summary>
+    /// Used if something went wrong when the bot attempts to send it's initial check in message
+    /// </summary>
+    /// <param name="groupCheckIn"></param>
     private async Task CheckInMessageSendRecovery(GroupCheckIn groupCheckIn)
     {
         _logger.LogInformation($"Message send recovery for {groupCheckIn.GroupCheckinId} : {groupCheckIn.Group.Name} : {groupCheckIn.GroupId}");
         
-        await SendAndRecordGroupCheckInMessage(groupCheckIn);
+        await SendAndRecordGroupCheckInInitialMessage(groupCheckIn);
     }
+
+
+    private async Task DoCheckInReminderMessages(GroupCheckIn groupCheckIn, int totalToSend,int totalSent)
+    {
+        var totalReadTime = groupCheckIn.Group.CheckInReadTimeout;
+        var readStart = groupCheckIn.DateModified;
+
+        var reminderInterval = totalReadTime / totalToSend;
+        
+        var nextInterval = totalSent * reminderInterval;
+        
+        var nextMessageTime  = readStart + nextInterval;
+
+        if (DateTimeOffset.Now > nextMessageTime)
+        {
+            await SendAndRecordGroupCheckInReminderMessage(groupCheckIn);
+        }
+
+    }
+    
+    
 
     private async Task ProcessReadingStage(GroupCheckIn groupCheckIn)
     {
@@ -196,6 +294,23 @@ public class GroupMurderRoutine : IServiceRoutine
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
                         && c.CheckInSuccess == null).ToListAsync();
+
+        var totalMessagesToSend = groupCheckIn.Group.ReminderCheckinMessages;
+        
+        var totalMessagesSent = await _dbContext.GroupCheckInMessage
+            .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
+            && m.OutgoingMessage.SendAt != null);
+
+        if (totalMessagesToSend > totalMessagesSent)
+        {
+            await DoCheckInReminderMessages(groupCheckIn, totalMessagesToSend, totalMessagesSent);
+        }
+        
+
+       
+        
+        
+        
 
 
         var newRead = 0;
@@ -281,7 +396,7 @@ public class GroupMurderRoutine : IServiceRoutine
         }
 
         //try again later maybe
-        if (failures > 0 && groupCheckIn.ChatMessageSendStageAttempts < 5)
+        if (failures > 0 && groupCheckIn.ChatMessageSendStageAttempts < groupCheckIn.Group.MessageSendStageMaxRetries)
         {
             _logger.LogWarning($"{failures} message failures, trying again later");
             groupCheckIn.ChatMessageSendStageAttempts++;
@@ -356,7 +471,7 @@ public class GroupMurderRoutine : IServiceRoutine
         }
 
         // maybe try the failures again later
-        if (failures > 0 && groupCheckIn.RemovalStageAttempts < 5)
+        if (failures > 0 && groupCheckIn.RemovalStageAttempts < groupCheckIn.Group.RemovalStageMaxRetries)
         {
             _logger.LogWarning($"{failures} removal failures, trying again later");
             groupCheckIn.RemovalStageAttempts++;

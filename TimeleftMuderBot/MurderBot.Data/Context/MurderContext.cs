@@ -31,6 +31,8 @@ public class MurderContext : DbContext
     public DbSet<Participant> Participant => Set<Participant>();
     
     public DbSet<MessageTemplate> MessageTemplate => Set<MessageTemplate>();
+
+    public DbSet<MurderJoke> MurderJoke => Set<MurderJoke>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +53,12 @@ public class MurderContext : DbContext
             
             entity.Property(e => e.MinimumTimeBetweenRuns)
                 .HasConversion<string>();
+            
+            entity.Property(i => i.MessageSendStageMaxRetries).HasDefaultValue(5);
+            
+            entity.Property(i => i.RemovalStageMaxRetries).HasDefaultValue(5);
+            
+            entity.Property(i => i.ReminderCheckinMessages).HasDefaultValue(0);
         });
 
         modelBuilder.Entity<GroupAutoReply>(e =>
@@ -75,6 +83,11 @@ public class MurderContext : DbContext
 
             e.Property(i => i.ChatMessageSendStageAttempts).HasDefaultValue(0);
             e.Property(i => i.RemovalStageAttempts).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<MurderJoke>(e =>
+        {
+            e.Property(i => i.TimesTold).HasDefaultValue(0);
         });
 
 
