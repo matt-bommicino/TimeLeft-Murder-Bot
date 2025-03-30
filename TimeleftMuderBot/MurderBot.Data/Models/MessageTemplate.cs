@@ -11,6 +11,9 @@ public enum MessageTemplateType
     ParticipantReplyMessage = 3,
     ParticipantRemovedMessage = 4,
     GroupCheckInReminderMessage = 5,
+    NoRemovalsResultMessage = 6,
+    RemovalStartMessage = 7,
+    RemovalsCompletedMessage = 8
 }
 
 public class MessageTemplate: IDateCreated, IDateModified

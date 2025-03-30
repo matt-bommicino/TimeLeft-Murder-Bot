@@ -189,8 +189,8 @@ public class GroupMurderRoutine : IServiceRoutine
         
         //get a random joke that has been told the least number of times
         var joke = await _dbContext.MurderJoke
-            .Where(j => j.TimesTold >= leastTold)
-            .OrderBy(j => EF.Functions.Random())
+            .Where(j => j.TimesTold == leastTold)
+            .OrderBy(j => Guid.NewGuid())
             .FirstOrDefaultAsync();
         
         if (joke == null)
@@ -307,31 +307,32 @@ public class GroupMurderRoutine : IServiceRoutine
             await DoCheckInReminderMessages(groupCheckIn, totalMessagesToSend, totalMessagesSent);
         }
         
-
-       
         
-        
-        
-
-
         var newRead = 0;
         foreach (var msg in groupCheckIn.Messages)
         {
-            if (msg.OutgoingMessageId == null)
-                continue;
-
-            var deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
-
-            foreach (var rp in deliveryInfo.Read)
+            try
             {
-                var badP = badParticipants.FirstOrDefault(p => p.ParticipantId == rp.Wid);
-                if (badP != null)
+                if (msg.OutgoingMessageId == null)
+                    continue;
+
+                var deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
+
+                foreach (var rp in deliveryInfo.Read)
                 {
-                    badP.CheckInSuccess = DateTimeOffset.Now;
-                    badP.CheckInMethod = CheckInMethod.ReadCheckInMessage;
-                    await _dbContext.SaveChangesAsync();
-                    newRead++;
+                    var badP = badParticipants.FirstOrDefault(p => p.ParticipantId == rp.Wid);
+                    if (badP != null)
+                    {
+                        badP.CheckInSuccess = DateTimeOffset.Now;
+                        badP.CheckInMethod = CheckInMethod.ReadCheckInMessage;
+                        await _dbContext.SaveChangesAsync();
+                        newRead++;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Unable get delivery info for {msg.OutgoingMessageId}");
             }
         }
         _logger.LogInformation($"Marked {newRead} participants as read");
@@ -425,6 +426,85 @@ public class GroupMurderRoutine : IServiceRoutine
         
     }
 
+    private async Task SendRemovalStartMessage(int numberToRemove, GroupCheckIn groupCheckIn)
+    {
+        
+        //make sure we don't repeat send the removal message
+        var existingRemovalMessages = await _dbContext.GroupCheckInMessage
+            .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
+             && m.DateCreated > groupCheckIn.ChatResponsesFinished);
+
+        if (existingRemovalMessages > 0)
+        {
+            return;
+        }
+        
+        
+        if (numberToRemove > 4)
+        {
+            var messageTemplate = await _dbContext.MessageTemplate
+                .OrderByDescending(t => t.DateCreated)
+                .FirstOrDefaultAsync(t =>
+                    t.IsActive && t.MessageTemplateType == MessageTemplateType.RemovalStartMessage);
+            if (messageTemplate == null) return;
+            
+            var messageText = messageTemplate.MessageBody.Replace("%groupname%", groupCheckIn.Group.Name)
+                .Replace("%numberofremovals%", numberToRemove.ToString());
+            
+            var cm = await _murderUtil.SendGroupMessage(groupCheckIn.GroupId, messageText);
+
+            var newGcm = new GroupCheckInMessage
+            {
+                GroupCheckinId = groupCheckIn.GroupCheckinId,
+                OutgoingMessageId = cm.WaId
+            };
+            _dbContext.GroupCheckInMessage.Add(newGcm);
+            await _dbContext.SaveChangesAsync();
+        }
+        
+        // don't send a message for just a few people
+    }
+
+    private async Task SendRemovalCompleteMessage(GroupCheckIn groupCheckIn)
+    {
+        
+        var numberRemoved = await _dbContext.GroupCheckInParticipantCheckIn
+            .CountAsync(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
+             && c.RemovalTime != null);
+        
+        var templateId = MessageTemplateType.RemovalsCompletedMessage;
+        if (numberRemoved < 1)
+            templateId = MessageTemplateType.NoRemovalsResultMessage;
+
+        var nextRunDate = groupCheckIn.DateCreated + groupCheckIn.Group.MinimumTimeBetweenRuns;
+        
+        var nextRunDateText = nextRunDate.ToString("d");
+        
+        var messageTemplate = await _dbContext.MessageTemplate
+            .OrderByDescending(t => t.DateCreated)
+            .FirstOrDefaultAsync(t =>
+                t.IsActive && t.MessageTemplateType == templateId);
+        if (messageTemplate == null) return;
+            
+        var messageText = messageTemplate.MessageBody.Replace("%groupname%", groupCheckIn.Group.Name)
+            .Replace("%nextrundate%", nextRunDateText);
+            
+        var cm = await _murderUtil.SendGroupMessage(groupCheckIn.GroupId, messageText);
+
+        var newGcm = new GroupCheckInMessage
+        {
+            GroupCheckinId = groupCheckIn.GroupCheckinId,
+            OutgoingMessageId = cm.WaId
+        };
+        _dbContext.GroupCheckInMessage.Add(newGcm);
+        await _dbContext.SaveChangesAsync();
+        
+        
+    }
+    
+    
+    
+
     private string _removalMessageTemplate;
     private async Task ProcessRemovalsStage(GroupCheckIn groupCheckIn)
     {
@@ -452,6 +532,8 @@ public class GroupMurderRoutine : IServiceRoutine
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
                         && c.CheckInSuccess == null && c.RemovalTime == null).ToListAsync();
+        
+        await SendRemovalStartMessage(badParticipants.Count,groupCheckIn);
 
         var failures = 0;
         foreach (var bp in badParticipants)
@@ -476,13 +558,20 @@ public class GroupMurderRoutine : IServiceRoutine
         {
             _logger.LogWarning($"{failures} removal failures, trying again later");
             groupCheckIn.RemovalStageAttempts++;
+            await _dbContext.SaveChangesAsync();
         }
         else
         {
             groupCheckIn.RemovalsCompleted = DateTimeOffset.Now;
+            await _dbContext.SaveChangesAsync();
+
+            await SendRemovalCompleteMessage(groupCheckIn);
+
+
+
         }
         
-        await _dbContext.SaveChangesAsync();
+        
         
 
     }
