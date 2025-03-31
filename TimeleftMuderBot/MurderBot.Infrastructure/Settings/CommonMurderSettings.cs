@@ -49,6 +49,22 @@ public class CommonMurderSettings
     public TimeSpan AutoReplyTimeout { get; set; } = TimeSpan.FromMinutes(30);
     
     
-    
-    
+    /// <summary>
+    /// This is to calculate the next run time for display purposes.
+    /// It has no effect on the web job.
+    /// </summary>
+    public TimeSpan WebJonRunInterval { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// This is to calculate the next run time for display purposes.
+    /// It has no effect on the web job.
+    /// </summary>
+    public int WebJobStartHour { get; set; } = 0;
+
+    /// <summary>
+    /// This is to calculate the next run time for display purposes.
+    /// It has no effect on the web job.
+    /// </summary>
+    public int WebJobEndHour { get; set; } = 23;
+
 }

@@ -478,6 +478,9 @@ public class GroupMurderRoutine : IServiceRoutine
 
         var nextRunDate = groupCheckIn.DateCreated + groupCheckIn.Group.MinimumTimeBetweenRuns;
         
+        if (nextRunDate.Hour > _murderSettings.WebJobEndHour)
+            nextRunDate = nextRunDate.Date.AddDays(1).AddHours(_murderSettings.WebJobStartHour);
+        
         var nextRunDateText = nextRunDate.ToString("d");
         
         var messageTemplate = await _dbContext.MessageTemplate

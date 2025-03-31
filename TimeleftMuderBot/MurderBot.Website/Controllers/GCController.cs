@@ -209,6 +209,17 @@ public class GCController : Controller
         return View(model);
     }
 
+    private DateTimeOffset CheckHourRange(DateTimeOffset dateToCheck)
+    {
+        if (dateToCheck.Hour > _murderSettings.WebJobEndHour)
+            return dateToCheck.Date.AddDays(1).AddHours(_murderSettings.WebJobStartHour);
+
+        if (dateToCheck.Hour < _murderSettings.WebJobStartHour)
+            return dateToCheck.Date.AddHours(_murderSettings.WebJobStartHour);
+
+        return dateToCheck;
+    }
+
     public async Task<IActionResult> Status(Guid id)
     {
 
@@ -229,7 +240,8 @@ public class GCController : Controller
             readStarted = true;
         }
 
-        var messageStartTime = readStartTime + checkin.Group.CheckInReadTimeout + TimeSpan.FromHours(1);
+        var messageStartTime = readStartTime + checkin.Group.CheckInReadTimeout + _murderSettings.WebJonRunInterval;
+        messageStartTime = CheckHourRange(messageStartTime);
         var messagesStarted = false;
 
         if (checkin.FirstMessageSent != null)
@@ -301,14 +313,15 @@ public class GCController : Controller
 
             if (checkin.ParticipantsReadFinished != null)
             {
-                model.RemovalStartTime = checkin.ParticipantsReadFinished.Value + checkin.Group.CheckInMessageResponseTimeout + TimeSpan.FromHours(1);
+                model.RemovalStartTime = checkin.ParticipantsReadFinished.Value + checkin.Group.CheckInMessageResponseTimeout + _murderSettings.WebJonRunInterval;
             }
             else
             {
                 model.RemovalStartTime = checkin.DateCreated +
                                          checkin.Group.CheckInMessageResponseTimeout
-                                         + checkin.Group.CheckInReadTimeout + TimeSpan.FromHours(2);
+                                         + checkin.Group.CheckInReadTimeout + (_murderSettings.WebJonRunInterval * 2);
             }
+            model.RemovalStartTime = CheckHourRange(model.RemovalStartTime);
             
         }
         else
