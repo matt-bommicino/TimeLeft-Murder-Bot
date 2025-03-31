@@ -2,9 +2,23 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+<div>
     <h1 class="display-4">Timeleft Murder Bot</h1>
     <p>This webpage belongs to the Timeleft Murder Bot. The Murder Bot was created to remove 
         inactive participants from the Timeleft WhatsApp group. This helps the group stay under the
-        maximum of 1024 participants.</p>
+        WhatsApp group maximum of 1024 participants, so new participants can continue to join.</p> <p>The bot goes through a series 
+        of steps before removing participants:</p>
+    
 </div>
+
+<ol>
+    <li>The bot exempts the group owner and all group participants who have posted recently from removal.</li>
+    <li>The bot sends a check-in message to the group.</li>
+    <li>The bot waits for the message to be read. All group participants who read the message are saved from removal.</li>
+    <li>All group participants who have not read the message are sent a direct message asking for a reply.</li>
+    <li>Any group participant who reply to the direct message are saved from removal.</li>
+    <li>Finally, group participants who do not meet any of the above criteria are removed.</li>
+</ol>
+
+<br/>
+<p>This project is open source, the code can be found on <a target="_blank" href="https://github.com/matt-bommicino/TimeLeft-Murder-Bot">GitHub.</a></p>
