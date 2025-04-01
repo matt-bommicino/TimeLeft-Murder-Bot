@@ -1,4 +1,7 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +30,7 @@ public class GCController : Controller
 
     [HttpPost]
     public async Task<IActionResult> ReAdd(Guid id, ReAddViewModel viewModel,
-        [FromServices] WassengerClient apiClient)
+        [FromServices] IHttpClientFactory clientFactory)
     {
         if (!ModelState.IsValid)
         {
@@ -40,24 +43,39 @@ public class GCController : Controller
         if (token == null)
             return NotFound();
         
-        var participant = await _dbContext.Participant.SingleOrDefaultAsync(p => p.WId == token.ParticipantId);
+        var existingTrigger = await _dbContext.ReAddJobTrigger.
+            AnyAsync(t => t.TokenGuid == token.TokenGuid && t.JobCompleteDate == null );
+
         
-        if (token.DateClaimed != null || DateTimeOffset.Now > token.ExpirationDate)
+        if (token.DateClaimed != null || DateTimeOffset.Now > token.ExpirationDate || existingTrigger)
         {
             RedirectToAction("ReAdd", new { id });
         }
 
-        var success = await apiClient.AddGroupParticipant(participant.Phone, token.GroupCheckIn.GroupId);
+        var trigger = new ReAddJobTrigger
+        {
+            TokenGuid = token.TokenGuid,
+            RetryCount = 0
+        };
+        _dbContext.ReAddJobTrigger.Add(trigger);
+        await _dbContext.SaveChangesAsync();
+        
+        var httpClient = clientFactory.CreateClient();
+        
+        var basicAuthToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_murderSettings.ReAddJobUserName}:{_murderSettings.ReAddJobPassword}"));
+        httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Basic", basicAuthToken);
+
+        var result = await httpClient.PostAsync(_murderSettings.ReAddTriggerUrl, null);
+        
+        //conflict means the service is already running
+        var success = result.IsSuccessStatusCode || result.StatusCode == HttpStatusCode.Conflict;
         
         if (!success)
         {
-            ModelState.AddModelError("",
-                "Unable to re-add you to the group. Ensure that you have added the Murder Bot as a contact.");
-            return View(viewModel);
+            var content = await result.Content.ReadAsStringAsync();
+            _logger.LogError(content);
         }
-        
-        token.DateClaimed = DateTimeOffset.Now;
-        await _dbContext.SaveChangesAsync();
         
         viewModel.RejoinTime = DateTimeOffset.Now;
         
@@ -79,6 +97,9 @@ public class GCController : Controller
 
 
         var murderBotParticipant = await _dbContext.Participant.SingleOrDefaultAsync(p => p.WId == _murderSettings.BotWid);
+        
+        var existingTrigger = await _dbContext.ReAddJobTrigger.
+            AnyAsync(t => t.TokenGuid == token.TokenGuid && t.JobCompleteDate == null );
 
         var model = new ReAddViewModel
         {
@@ -90,12 +111,17 @@ public class GCController : Controller
         
         if (token.DateClaimed != null)
         {
-            model.FatalError = "This re-join token has already been claimed.";
+            model.FatalError = "This re-add token has already been claimed.";
         }
         
         else if (token.ExpirationDate < DateTimeOffset.Now)
         {
-            model.FatalError = "This re-join token has expired.";
+            model.FatalError = "This re-add token has expired.";
+        }
+        else if (existingTrigger)
+        {
+            model.FatalError =
+                "The job to re-add you to the group in in process. Please wait to receive a status message";
         }
         
         return View(model);

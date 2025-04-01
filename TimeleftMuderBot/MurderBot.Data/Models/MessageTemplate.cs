@@ -13,7 +13,11 @@ public enum MessageTemplateType
     GroupCheckInReminderMessage = 5,
     NoRemovalsResultMessage = 6,
     RemovalStartMessage = 7,
-    RemovalsCompletedMessage = 8
+    RemovalsCompletedMessage = 8,
+    ReAddProcessStartMessage = 9,
+    ReAddSuccessMessage = 10,
+    ReAddFailedMessage = 11,
+    ReAddFailParticipantAlreadyInGroup=12
 }
 
 public class MessageTemplate: IDateCreated, IDateModified

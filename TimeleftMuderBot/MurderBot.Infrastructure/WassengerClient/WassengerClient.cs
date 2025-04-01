@@ -62,8 +62,13 @@ public class WassengerClient
         response.EnsureSuccessStatusCode();
     }
     
-    
-    public async Task<bool> AddGroupParticipant(string phoneNumber, string groupId)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="phoneNumber"></param>
+    /// <param name="groupId"></param>
+    /// <returns>The response if there was an error. Empty string for success</returns>
+    public async Task<string> AddGroupParticipant(string phoneNumber, string groupId)
     {
         var url = $"devices/{_murderSettings.WassengerDeviceId}/groups/{groupId}/participants";
         
@@ -82,14 +87,14 @@ public class WassengerClient
         
         var response = await _httpClient.SendAsync(request);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        if (!response.IsSuccessStatusCode)
         {
-            return false;
+            var content = await response.Content.ReadAsStringAsync();
+            return $"{response.StatusCode}: {content}";
         }
         
-        response.EnsureSuccessStatusCode();
 
-        return true;
+        return String.Empty;
     }
     
 

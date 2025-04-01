@@ -64,7 +64,7 @@ else
                 <div class="card-body">
                     <h4>Please Confirm</h4>
                     <hr />
-                    <form method="post">
+                    <form method="post" onsubmit="document.getElementById('btnRejoin').disabled = true;">
 
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         
@@ -88,7 +88,7 @@ else
                             </label>
                         </div>
 
-                        <button type="submit" class="btn btn-primary mt-3">
+                        <button type="submit" class="btn btn-primary mt-3" id="btnRejoin">
                             Rejoin Group
                         </button>
                     </form>

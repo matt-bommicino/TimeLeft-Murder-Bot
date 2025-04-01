@@ -34,6 +34,8 @@ public class MurderContext : DbContext
 
     public DbSet<MurderJoke> MurderJoke => Set<MurderJoke>();
     
+    public DbSet<ReAddJobTrigger> ReAddJobTrigger => Set<ReAddJobTrigger>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("Murder");
@@ -90,6 +92,11 @@ public class MurderContext : DbContext
             e.Property(i => i.TimesTold).HasDefaultValue(0);
         });
 
+        modelBuilder.Entity<ReAddJobTrigger>(e =>
+        {
+            e.HasOne(f => f.AutoReAddToken)
+                .WithMany().HasForeignKey(t => t.TokenGuid);
+        });
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {

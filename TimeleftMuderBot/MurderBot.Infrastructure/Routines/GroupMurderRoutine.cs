@@ -76,7 +76,6 @@ public class GroupMurderRoutine : IServiceRoutine
         if (groupCheckIn.ParticipantsReadFinished == null)
         {
             await ProcessReadingStage(groupCheckIn);
-            return;
         }
 
         if (groupCheckIn.ParticipantsReadFinished != null && groupCheckIn.FirstMessageSent == null)
@@ -88,7 +87,6 @@ public class GroupMurderRoutine : IServiceRoutine
         if (groupCheckIn.FirstMessageSent != null && groupCheckIn.ChatResponsesFinished == null)
         {
             await ProcessWaitForMessagesStage(groupCheckIn);
-            return;
         }
 
         if (groupCheckIn.ChatResponsesFinished != null && groupCheckIn.RemovalsCompleted == null)
@@ -434,12 +432,13 @@ public class GroupMurderRoutine : IServiceRoutine
             .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
              && m.DateCreated > groupCheckIn.ChatResponsesFinished);
 
+        
         if (existingRemovalMessages > 0)
         {
             return;
         }
         
-        
+        // don't send a message for just a few people
         if (numberToRemove > 4)
         {
             var messageTemplate = await _dbContext.MessageTemplate
@@ -460,9 +459,14 @@ public class GroupMurderRoutine : IServiceRoutine
             };
             _dbContext.GroupCheckInMessage.Add(newGcm);
             await _dbContext.SaveChangesAsync();
+            
+            //wait a minute for the message to hit the group before
+            //starting removals
+            _logger.LogInformation("Attempting delay");
+            await Task.Delay(TimeSpan.FromMinutes(1));
         }
         
-        // don't send a message for just a few people
+        
     }
 
     private async Task SendRemovalCompleteMessage(GroupCheckIn groupCheckIn)

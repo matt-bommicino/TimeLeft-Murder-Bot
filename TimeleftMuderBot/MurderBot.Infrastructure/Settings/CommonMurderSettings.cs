@@ -66,5 +66,13 @@ public class CommonMurderSettings
     /// It has no effect on the web job.
     /// </summary>
     public int WebJobEndHour { get; set; } = 23;
+    
+    public int MaxReAddAttempts { get; set; } = 3;
+    
+    public string ReAddTriggerUrl { get; set; }
+    
+    public string ReAddJobUserName { get; set; }
+    
+    public string ReAddJobPassword { get; set; }
 
 }
