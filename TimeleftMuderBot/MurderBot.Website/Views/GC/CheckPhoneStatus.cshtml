@@ -37,6 +37,8 @@
         string statusClass = "";
         string statusMessage = "";
 
+        var actionWords = Model.RemovalsCompleted ? "was not" : "will not be";
+        
         switch (@Model.Status)
         {
             case "EligibleForRemoval":
@@ -45,7 +47,7 @@
                 break;
             case "WillNotBeRemoved":
                 statusClass = "status-box status-safe";
-                statusMessage = "This participant will not be removed.";
+                statusMessage = $"This participant {actionWords} removed.";
                 break;
             case "ParticipantNotFound":
                 statusClass = "status-box status-notfound";
@@ -75,6 +77,14 @@
     <p>
         Additional Info: @Model.AdditionalInfo
     </p>
+    
+    @if (Model.RemovalsCompleted)
+    {
+        <p>
+            <strong>This status message applies to a completed check-in cycle. If you are trying to check your status for the current cycle,
+                see the group chat for the latest link.</strong>
+        </p>
+    }
 
     
     <div class="mt-4">

@@ -2,10 +2,10 @@
 
 public class ReAddViewModel
 {
-    public string GroupName { get; set; }
-    public string PhoneNumber { get; set; }
+    public string? GroupName { get; set; }
+    public string? PhoneNumber { get; set; }
     
-    public string MurderBotPhoneNumber { get; set; }
+    public string? MurderBotPhoneNumber { get; set; }
     public DateTimeOffset RemovedTime { get; set; }
     
     public DateTimeOffset? RejoinTime { get; set; }
@@ -14,5 +14,5 @@ public class ReAddViewModel
     
     public bool IAgreeToBeActive { get; set; }
     
-    public string FatalError { get; set; }
+    public string? FatalError { get; set; }
 }

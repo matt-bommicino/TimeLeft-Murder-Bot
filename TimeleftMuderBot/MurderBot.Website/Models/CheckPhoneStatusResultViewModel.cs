@@ -9,4 +9,6 @@ public class CheckPhoneStatusResultViewModel
     
     public string GroupName { get; set; }
     public string AdditionalInfo { get; set; }
+    
+    public bool RemovalsCompleted { get; set; }
 }

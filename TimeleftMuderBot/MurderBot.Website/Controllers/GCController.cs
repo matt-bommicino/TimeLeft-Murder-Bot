@@ -146,7 +146,13 @@ public class GCController : Controller
             Id = id,
             PhoneNumber = phone,
             GroupName = checkin.Group.Name,
+            RemovalsCompleted = checkin.RemovalsCompleted != null,
         };
+
+        var actionsWords = "will not be";
+        
+        if (model.RemovalsCompleted)
+            actionsWords = "were not";
 
         var participant = await _dbContext.Participant.FirstOrDefaultAsync(p => p.Phone == phone);
 
@@ -182,13 +188,13 @@ public class GCController : Controller
                     model.AdditionalInfo = "You are exempt from removal";
                     break;
                 case CheckInMethod.ReadCheckInMessage:
-                    model.AdditionalInfo = "You will not be removed because you read the group check-in message.";
+                    model.AdditionalInfo = $"You {actionsWords} removed because you read the group check-in message.";
                     break;
                 case CheckInMethod.RecentGroupMessage:
-                    model.AdditionalInfo = "You will not be removed because you've posted in the group recently.";
+                    model.AdditionalInfo = $"You {actionsWords} removed because you've posted in the group recently.";
                     break;
                 case CheckInMethod.RepliedToCheckInMessage:
-                    model.AdditionalInfo = "You will not be removed because you replied to the check-in DM";
+                    model.AdditionalInfo = $"You {actionsWords} removed because you replied to the check-in DM";
                     break;
             }
         }
@@ -257,7 +263,7 @@ public class GCController : Controller
         var recentMessageCount = checkin.ParticipantsCheckIns.Count(p => p.CheckInMethod == CheckInMethod.RecentGroupMessage);
         var readCount = checkin.ParticipantsCheckIns.Count(p => p.CheckInMethod == CheckInMethod.ReadCheckInMessage);
         var replyCount = checkin.ParticipantsCheckIns.Count(p => p.CheckInMethod == CheckInMethod.RepliedToCheckInMessage);
-       
+        
         
         var model = new MurderBotStatusViewModel
         {

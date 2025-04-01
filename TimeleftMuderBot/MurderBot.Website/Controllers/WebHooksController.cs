@@ -77,29 +77,36 @@ namespace MurderBot.Website.Controllers
                 }
                 
                 var participantId = dbParticipant.WId;
-                
-    
-                
-                //record the message
-                var chatMessage = new ChatMessage
+
+
+                var chatMessage = await _dbContext.ChatMessage.FirstOrDefaultAsync(
+                    m => m.WaId == webhook.Data.Id);
+
+                //only process once
+                if (chatMessage == null)
                 {
-                    Body = msgBody,
-                    Id = webhook.Data.Id,
-                    ChatId = webhook.Data.From,
-                    WaId = webhook.Data.Id,
-                    ParticipantId = participantId,
-                    SendAt = webhook.Data.Date ?? DateTimeOffset.Now,
-                    DeliverAt = webhook.Data.Date ?? DateTimeOffset.Now,
-                    OutgoingMessage = false
-                };
-                _dbContext.ChatMessage.Add(chatMessage);
-                await _dbContext.SaveChangesAsync();
+                    //record the message
+                    chatMessage = new ChatMessage
+                    {
+                        Body = msgBody,
+                        Id = webhook.Data.Id,
+                        ChatId = webhook.Data.From,
+                        WaId = webhook.Data.Id,
+                        ParticipantId = participantId,
+                        SendAt = webhook.Data.Date ?? DateTimeOffset.Now,
+                        DeliverAt = webhook.Data.Date ?? DateTimeOffset.Now,
+                        OutgoingMessage = false
+                    };
+                    _dbContext.ChatMessage.Add(chatMessage);
+                    await _dbContext.SaveChangesAsync();
+                
 
                 //group message
-                if (chatMessage.ChatId != chatMessage.ParticipantId)
-                    await autoReplyRoutine.Execute(chatMessage);
-                
-                await processIncomingMessageRoutine.Execute(chatMessage);
+                    if (chatMessage.ChatId != chatMessage.ParticipantId)
+                        await autoReplyRoutine.Execute(chatMessage);
+                    
+                    await processIncomingMessageRoutine.Execute(chatMessage);
+                }
                 
                 return Ok();
             }

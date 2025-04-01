@@ -18,6 +18,13 @@
 <div class="container mt-5">
     <h1 class="mb-4">Timeleft Murder Bot Status</h1>
 
+    @if (Model.RemovalCompleted)
+    {
+        <div class="alert alert-warning">
+            This status page is for a completed check-in cycle. If you are looking for the current cycle, see the group chat for the latest link.
+        </div>
+    }
+    
     <!-- Group Information Table -->
     <table class="table table-bordered w-75">
         <tbody>
