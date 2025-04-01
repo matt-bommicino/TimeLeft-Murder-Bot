@@ -17,6 +17,7 @@ public class WassengerClient
     {
         _murderSettings = murderSettings.Value;
         _httpClient = clientFactory.CreateClient();
+        _httpClient.Timeout = TimeSpan.FromMinutes(3);
         _httpClient.BaseAddress = new Uri("https://api.wassenger.com/v1/");
         _httpClient.DefaultRequestHeaders.Add("Token", _murderSettings.WassengerApiToken);
     }
