@@ -53,7 +53,7 @@ public class CommonMurderSettings
     /// This is to calculate the next run time for display purposes.
     /// It has no effect on the web job.
     /// </summary>
-    public TimeSpan WebJonRunInterval { get; set; } = TimeSpan.FromMinutes(5);
+    public TimeSpan WebJonRunInterval { get; set; } = TimeSpan.FromMinutes(60);
 
     /// <summary>
     /// This is to calculate the next run time for display purposes.

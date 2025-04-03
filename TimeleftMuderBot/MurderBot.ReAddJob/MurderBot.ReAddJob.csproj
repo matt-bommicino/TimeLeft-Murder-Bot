@@ -1,27 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <UserSecretsId>6ead7182-5e83-4402-a95b-4c3aefef048c</UserSecretsId>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\MurderBot.Infrastructure\MurderBot.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
-      <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.3" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Settings.job">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>6ead7182-5e83-4402-a95b-4c3aefef048c</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MurderBot.Infrastructure\MurderBot.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Settings.job">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

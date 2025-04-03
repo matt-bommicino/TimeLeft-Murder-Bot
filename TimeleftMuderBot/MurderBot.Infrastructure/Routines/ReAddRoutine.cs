@@ -63,13 +63,23 @@ public class ReAddRoutine : IServiceRoutine
                     await  _dbContext.SaveChangesAsync();
                 }
 
+                string result ;
                 var paricipantId = job.AutoReAddToken.ParticipantId;
 
-                var participant = _dbContext.Participant.Single(p => p.WId == paricipantId);
-                var groupId = job.AutoReAddToken.GroupCheckIn.GroupId;
+                try
+                {
+                    
 
-                //test failure
-                var result = await _apiClient.AddGroupParticipant(participant.Phone, groupId);
+                    var participant = _dbContext.Participant.Single(p => p.WId == paricipantId);
+                    var groupId = job.AutoReAddToken.GroupCheckIn.GroupId;
+
+                    result = await _apiClient.AddGroupParticipant(participant.Phone, groupId);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Error readding participant {paricipantId}");
+                    result = "exception";
+                }
                 
                 //success
                 if (string.IsNullOrWhiteSpace(result))
