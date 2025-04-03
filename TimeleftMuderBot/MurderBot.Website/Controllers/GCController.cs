@@ -330,7 +330,7 @@ public class GCController : Controller
                     ParticipantsNotRemoved = replyCount,
                     IsCurrentStage = messagesStarted && checkin.ChatResponsesFinished == null,
                     IsComplete = checkin.ChatResponsesFinished != null,
-                    StageDescription = "Each participant that is still eligible for removal will be messaged individually. If that participant replies before the start of the removal stage, they will be saved from removal"
+                    StageDescription = "Each participant still eligible for removal will be messaged individually. If that participant replies before the start of the removal stage, they will be saved from removal"
                 }
             }
         };
