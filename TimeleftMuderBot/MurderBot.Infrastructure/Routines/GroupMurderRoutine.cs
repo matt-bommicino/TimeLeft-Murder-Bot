@@ -216,7 +216,7 @@ public class GroupMurderRoutine : IServiceRoutine
         {
             var readCount = await _dbContext.GroupCheckInParticipantCheckIn
                 .CountAsync(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId &&
-                                 c.CheckInMethod == CheckInMethod.ReadCheckInMessage);
+                                 (c.CheckInMethod == CheckInMethod.ReadCheckInMessage || c.CheckInMethod == CheckInMethod.RecentGroupMessage));
             
             //get check in message ID to quote
             var checkinMessageID = await _dbContext.GroupCheckInMessage
