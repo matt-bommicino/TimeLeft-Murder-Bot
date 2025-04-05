@@ -460,10 +460,10 @@ public class GroupMurderRoutine : IServiceRoutine
             _dbContext.GroupCheckInMessage.Add(newGcm);
             await _dbContext.SaveChangesAsync();
             
-            //wait a minute for the message to hit the group before
+            //wait two minute for the message to hit the group before
             //starting removals
             _logger.LogInformation("Attempting delay");
-            await Task.Delay(TimeSpan.FromMinutes(1));
+            await Task.Delay(TimeSpan.FromMinutes(2));
         }
         
         
