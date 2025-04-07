@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MurderBot.Data.Context;
 using MurderBot.Data.Models;
 using MurderBot.Infrastructure.Settings;
 using MurderBot.Infrastructure.Utility;
+using MurderBot.Infrastructure.WassengerClient.Models;
 
 namespace MurderBot.Infrastructure.Routines;
 
@@ -282,7 +284,29 @@ public class GroupMurderRoutine : IServiceRoutine
         }
 
     }
-    
+
+    private async Task SyncMessages(GroupCheckInMessage msg)
+    {
+        var groupId = msg.GroupCheckIn.GroupId;
+        var sent = msg.DateCreated;
+        
+        var size = await _dbContext.ChatMessage.CountAsync(m => m.ChatId == groupId
+            && m.DateCreated > sent);
+
+        if (size > 500)
+        {
+            _logger.LogWarning($"Too many messages to sync {size}, max is 500");
+            return;
+        }
+        
+        size += 50;
+        
+        if (size > 500)
+            size = 500;
+
+        await _apiClient.SyncChatMessages(groupId, size);
+
+    }
     
 
     private async Task ProcessReadingStage(GroupCheckIn groupCheckIn)
@@ -314,7 +338,27 @@ public class GroupMurderRoutine : IServiceRoutine
                 if (msg.OutgoingMessageId == null)
                     continue;
 
-                var deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
+
+                DeliveryInfoResult deliveryInfo;
+
+                try
+                {
+                    deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
+                }
+                catch (HttpRequestException e)
+                {
+                    if (e.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    {
+                        _logger.LogWarning("Received 503, syncing messages and trying again.");
+                        //sync messages and retry
+                        await SyncMessages(msg);
+                        deliveryInfo = await _apiClient.GetDeliveryInfo(msg.OutgoingMessageId);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
 
                 foreach (var rp in deliveryInfo.Read)
                 {

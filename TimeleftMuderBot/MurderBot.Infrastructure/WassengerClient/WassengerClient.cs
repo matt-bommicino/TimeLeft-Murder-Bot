@@ -41,6 +41,15 @@ public class WassengerClient
         return JsonConvert.DeserializeObject<GroupResult>(jsonResult)!;
     }
 
+
+    public async Task SyncChatMessages(string groupId, int size)
+    {
+        var url = $"chat/{_murderSettings.WassengerDeviceId}/chats/{groupId}/sync?size={size}";
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+    }
+    
+    
     public async Task RemoveGroupParticipant(string phoneNumber, string groupId)
     {
         var url = $"devices/{_murderSettings.WassengerDeviceId}/groups/{groupId}/participants";
