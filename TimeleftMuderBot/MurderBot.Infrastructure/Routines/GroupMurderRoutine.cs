@@ -207,6 +207,8 @@ public class GroupMurderRoutine : IServiceRoutine
     
     private async Task SendAndRecordGroupCheckInReminderMessage(GroupCheckIn groupCheckIn)
     {
+        
+        _logger.LogInformation("Sending check in reminder message");
         var checkinUrl = $"{_murderSettings.WebsiteBaseUrl}/GC/Status/{groupCheckIn.UrlGuid}";
         
         var messageTemplate = await _dbContext.MessageTemplate
@@ -322,19 +324,6 @@ public class GroupMurderRoutine : IServiceRoutine
         var badParticipants = await _dbContext.GroupCheckInParticipantCheckIn
             .Where(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId
                         && c.CheckInSuccess == null).ToListAsync();
-
-        //+1 for the initial check in message
-        var totalMessagesToSend = groupCheckIn.Group.ReminderCheckinMessages + 1;
-        
-        var totalMessagesSent = await _dbContext.GroupCheckInMessage
-            .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
-            && m.OutgoingMessage.SendAt != null);
-
-        if (totalMessagesToSend > totalMessagesSent)
-        {
-            await DoCheckInReminderMessages(groupCheckIn, totalMessagesToSend, totalMessagesSent);
-        }
-        
         
         var newRead = 0;
         var errorcount = 0;
@@ -398,6 +387,19 @@ public class GroupMurderRoutine : IServiceRoutine
             groupCheckIn.LastReadCountCompleted = DateTimeOffset.Now;
             groupCheckIn.LastReadCount = readCount;
             await _dbContext.SaveChangesAsync();
+        }
+        
+        
+        //+1 for the initial check in message
+        var totalMessagesToSend = groupCheckIn.Group.ReminderCheckinMessages + 1;
+        
+        var totalMessagesSent = await _dbContext.GroupCheckInMessage
+            .CountAsync(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
+                             && m.OutgoingMessage.SendAt != null);
+
+        if (totalMessagesToSend > totalMessagesSent)
+        {
+            await DoCheckInReminderMessages(groupCheckIn, totalMessagesToSend, totalMessagesSent);
         }
         
 
