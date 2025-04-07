@@ -25,4 +25,8 @@ public class MurderBotStatusViewModel
     public DateTimeOffset RemovalStartTime { get; set; }
     
     public bool RemovalCompleted { get; set; }
+    
+    public bool IsInReadingStage { get; set; }
+    
+    public DateTimeOffset? LastReadCountCompleted { get; set; }
 }

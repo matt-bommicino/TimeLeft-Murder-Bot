@@ -173,6 +173,7 @@ public class GCController : Controller
             PhoneNumber = phone,
             GroupName = checkin.Group.Name,
             RemovalsCompleted = checkin.RemovalsCompleted != null,
+            LastReadCountCompleted = checkin.LastReadCountCompleted
         };
 
         var actionsWords = "will not be";
@@ -233,7 +234,16 @@ public class GCController : Controller
             }
             else
             {
-                model.AdditionalInfo = "The model is still waiting to see who reads the check-in message. It may take several hours for this to update. If you have recently read the message, check back later.";
+                if (model.LastReadCountCompleted.HasValue)
+                {
+                    model.AdditionalInfo = $"The model is still waiting to see who reads the check in message. It may take several hours for this to update. The read status was last updated {model.LastReadCountCompleted.Value:MM/dd/yyyy h:mm tt}. If you read the message after this time, check back later.";
+                }
+                else
+                {
+                    model.AdditionalInfo = "The model is still waiting to see who reads the check in message. It may take several hours for this to update. If you recently read the message, check back later.";
+                }
+                
+                
             }
         }
 
@@ -243,11 +253,14 @@ public class GCController : Controller
 
     private DateTimeOffset CheckHourRange(DateTimeOffset dateToCheck)
     {
-        if (dateToCheck.Hour > _murderSettings.WebJobEndHour)
-            return dateToCheck.Date.AddDays(1).AddHours(_murderSettings.WebJobStartHour);
+        
+        var dt = GetEasternDate(dateToCheck);
+        
+        if (dt.Hour > _murderSettings.WebJobEndHour)
+            return dt.Date.AddDays(1).AddHours(_murderSettings.WebJobStartHour);
 
-        if (dateToCheck.Hour < _murderSettings.WebJobStartHour)
-            return dateToCheck.Date.AddHours(_murderSettings.WebJobStartHour);
+        if (dt.Hour < _murderSettings.WebJobStartHour)
+            return dt.Date.AddHours(_murderSettings.WebJobStartHour);
 
         return dateToCheck;
     }
@@ -312,7 +325,7 @@ public class GCController : Controller
                     ParticipantsNotRemoved = recentMessageCount,
                     IsCurrentStage = !readStarted,
                     IsComplete = true,
-                    StageDescription = "If you have posted in the group recently, you won’t be removed"
+                    StageDescription = "Any participant that has posted in the group recently will be saved from removal"
                 },
                 new RemovalStageViewModel
                 {
@@ -321,7 +334,7 @@ public class GCController : Controller
                     ParticipantsNotRemoved = readCount,
                     IsCurrentStage = readStarted && !messagesStarted,
                     IsComplete = messagesStarted,
-                    StageDescription = "The Murder Bot will send out a check in message to the group. Any participant who reads this message will be saved from removal"
+                    StageDescription = "The Murder Bot will send a check in message to the group. Any participant who reads this message will be saved from removal"
                 },
                 new RemovalStageViewModel
                 {
@@ -330,7 +343,7 @@ public class GCController : Controller
                     ParticipantsNotRemoved = replyCount,
                     IsCurrentStage = messagesStarted && checkin.ChatResponsesFinished == null,
                     IsComplete = checkin.ChatResponsesFinished != null,
-                    StageDescription = "Each participant still eligible for removal will be messaged individually. If that participant replies before the start of the removal stage, they will be saved from removal"
+                    StageDescription = "Each participant still eligible for removal will be messaged individually. Any participant that replies before the start of the removal stage will be saved from removal"
                 }
             }
         };
@@ -367,6 +380,11 @@ public class GCController : Controller
         model.RemovalCompleted = removalsComplete;
 
         model.RemovalStartTime = GetEasternDate(model.RemovalStartTime);
+
+        model.IsInReadingStage = readStarted && !messagesStarted;
+        
+        if (checkin.LastReadCountCompleted.HasValue)
+            model.LastReadCountCompleted = GetEasternDate(checkin.LastReadCountCompleted.Value);
         
         return View(model);
     }

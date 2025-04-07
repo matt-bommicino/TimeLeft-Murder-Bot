@@ -216,10 +216,16 @@ public class GroupMurderRoutine : IServiceRoutine
 
         if (messageTemplate != null)
         {
-            var readCount = await _dbContext.GroupCheckInParticipantCheckIn
-                .CountAsync(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId &&
-                                 (c.CheckInMethod == CheckInMethod.ReadCheckInMessage || c.CheckInMethod == CheckInMethod.RecentGroupMessage));
-            
+            var readCount = groupCheckIn.LastReadCount; 
+                
+            if (readCount == null)
+            {
+                readCount = await _dbContext.GroupCheckInParticipantCheckIn
+                    .CountAsync(c => c.GroupCheckinId == groupCheckIn.GroupCheckinId &&
+                                     (c.CheckInMethod == CheckInMethod.ReadCheckInMessage ||
+                                      c.CheckInMethod == CheckInMethod.RecentGroupMessage));
+            }
+
             //get check in message ID to quote
             var checkinMessageID = await _dbContext.GroupCheckInMessage
                 .Where(m => m.GroupCheckinId == groupCheckIn.GroupCheckinId
@@ -331,6 +337,8 @@ public class GroupMurderRoutine : IServiceRoutine
         
         
         var newRead = 0;
+        var errorcount = 0;
+        int readCount = 0;
         foreach (var msg in groupCheckIn.Messages)
         {
             try
@@ -359,6 +367,10 @@ public class GroupMurderRoutine : IServiceRoutine
                         throw;
                     }
                 }
+                _logger.LogInformation($"{deliveryInfo.Read.Count} have read {msg.OutgoingMessageId}");
+                if (deliveryInfo.Read.Count > readCount)
+                    readCount = deliveryInfo.Read.Count;
+                    
 
                 foreach (var rp in deliveryInfo.Read)
                 {
@@ -374,10 +386,20 @@ public class GroupMurderRoutine : IServiceRoutine
             }
             catch (Exception e)
             {
+                errorcount++;
                 _logger.LogError(e, $"Unable get delivery info for {msg.OutgoingMessageId}");
             }
         }
         _logger.LogInformation($"Marked {newRead} participants as read");
+
+
+        if (errorcount == 0)
+        {
+            groupCheckIn.LastReadCountCompleted = DateTimeOffset.Now;
+            groupCheckIn.LastReadCount = readCount;
+            await _dbContext.SaveChangesAsync();
+        }
+        
 
         var checkInMessageSent = groupCheckIn.Messages
             .Where(c => c.OutgoingMessage.SendAt != null)

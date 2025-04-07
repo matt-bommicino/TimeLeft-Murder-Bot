@@ -11,4 +11,7 @@ public class CheckPhoneStatusResultViewModel
     public string AdditionalInfo { get; set; }
     
     public bool RemovalsCompleted { get; set; }
+    
+    public DateTimeOffset? LastReadCountCompleted { get; set; }
+    
 }

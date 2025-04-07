@@ -46,6 +46,10 @@ public class GroupCheckIn : IDateCreated, IDateModified
     
     public DateTimeOffset? RemovalsCompleted { get; set; }
     
+    public DateTimeOffset? LastReadCountCompleted { get; set; }
+    
+    public int? LastReadCount { get; set; }
+    
     public int ChatMessageSendStageAttempts { get; set; }
     
     public int RemovalStageAttempts { get; set; }

@@ -59,13 +59,13 @@ public class CommonMurderSettings
     /// This is to calculate the next run time for display purposes.
     /// It has no effect on the web job.
     /// </summary>
-    public int WebJobStartHour { get; set; } = 0;
+    public int WebJobStartHour { get; set; } = 8;
 
     /// <summary>
     /// This is to calculate the next run time for display purposes.
     /// It has no effect on the web job.
     /// </summary>
-    public int WebJobEndHour { get; set; } = 23;
+    public int WebJobEndHour { get; set; } = 21;
     
     public int MaxReAddAttempts { get; set; } = 3;
     

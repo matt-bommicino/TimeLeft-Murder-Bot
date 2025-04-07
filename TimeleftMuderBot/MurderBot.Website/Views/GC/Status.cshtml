@@ -108,8 +108,19 @@
     <div class="mt-3">
         <p>
             <strong>Note:</strong> Stages after the current stage are shown in gray,
-            and the arrow (<span class="text-primary">&#8594;</span>) indicates the current stage. It may take several hours to update the count of participants who have read the check in message.
+            and the arrow (<span class="text-primary">&#8594;</span>) indicates the current stage. 
         </p>
+        @if (Model.IsInReadingStage)
+        {
+            <p>
+                It may take several hours to update the count of participants who have read the check in message. 
+                @if (Model.LastReadCountCompleted.HasValue)
+                {
+                    <span>The read count was last updated at: @Model.LastReadCountCompleted.Value.ToString("MM/dd/yyyy h:mm tt")</span>
+                }
+            </p>
+        }
+      
     </div>
 
     <h3 class="mt-5">@(Model.RemovalCompleted ? "Removal Statistics" : "Removal Status")</h3>
